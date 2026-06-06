@@ -19,6 +19,9 @@ jobs:
   build-and-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: maxmarkusprogram-prtg-datasource
     permissions:
       contents: write
       id-token: write
@@ -36,13 +39,14 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: maxmarkusprogram-prtg-datasource/.nvmrc
           cache: npm
+          cache-dependency-path: maxmarkusprogram-prtg-datasource/package-lock.json
 
       - name: Setup Go environment
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: maxmarkusprogram-prtg-datasource/go.mod
 
       - name: Install dependencies
         run: npm ci
@@ -56,11 +60,14 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Build backend
+      - name: Install Mage
         uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b
         with:
           version: latest
-          args: buildAll
+          install-only: true
+
+      - name: Build backend
+        run: mage buildAll
 
       - name: Execute permissions on binaries
         run: chmod 0755 dist/gpx_*
@@ -105,7 +112,7 @@ jobs:
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: ${{ steps.metadata.outputs.archive }}
+          subject-path: maxmarkusprogram-prtg-datasource/${{ steps.metadata.outputs.archive }}
 
       - name: Publish release assets
         env:
