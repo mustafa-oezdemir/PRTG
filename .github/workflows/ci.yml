@@ -131,7 +131,7 @@ jobs:
           ARCHIVE: ${{ steps.metadata.outputs.archive }}
 
       - name: Archive Build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.metadata.outputs.plugin-id }}-${{ steps.metadata.outputs.plugin-version }}
           path: ${{ steps.metadata.outputs.plugin-id }}
@@ -176,10 +176,29 @@ jobs:
           persist-credentials: false
 
       - name: Download plugin
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          path: dist
+          path: plugin-artifact
           name: ${{ needs.build.outputs.plugin-id }}-${{ needs.build.outputs.plugin-version }}
+
+      - name: Prepare plugin dist
+        run: |
+          rm -rf dist
+          mkdir -p dist
+
+          if [ -f "plugin-artifact/plugin.json" ]; then
+            cp -a plugin-artifact/. dist/
+          elif [ -f "plugin-artifact/${PLUGIN_ID}/plugin.json" ]; then
+            cp -a "plugin-artifact/${PLUGIN_ID}/." dist/
+          else
+            echo "Downloaded artifact does not contain plugin.json at the expected location."
+            find plugin-artifact -maxdepth 3 -type f | sort
+            exit 1
+          fi
+
+          test -f dist/plugin.json
+        env:
+          PLUGIN_ID: ${{ needs.build.outputs.plugin-id }}
 
       - name: Execute permissions on binary
         if: needs.build.outputs.has-backend == 'true'
@@ -230,7 +249,7 @@ jobs:
 
       # Uncomment this step to upload the server log to Github artifacts. Remember Github artifacts are public on the Internet if the repository is public.
       # - name: Upload server log
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   if: ${{ always() && steps.run-tests.outcome == 'failure' }}
       #   with:
       #     name: ${{ matrix.GRAFANA_IMAGE.NAME }}-v${{ matrix.GRAFANA_IMAGE.VERSION }}-${{github.run_id}}-server-log
