@@ -9,27 +9,9 @@ permissions:
   id-token: write
 
 jobs:
-  resolve-versions:
-    name: Resolve Grafana images
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    outputs:
-      matrix: ${{ steps.resolve-versions.outputs.matrix }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Resolve Grafana E2E versions
-        id: resolve-versions
-        uses: grafana/plugin-actions/e2e-version@main
-
   playwright-tests:
-    needs: resolve-versions
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        GRAFANA_IMAGE: ${{fromJson(needs.resolve-versions.outputs.matrix)}}
-    name: e2e ${{ matrix.GRAFANA_IMAGE.name }}@${{ matrix.GRAFANA_IMAGE.VERSION }}
+    name: e2e grafana@13.1.0
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -64,7 +46,7 @@ jobs:
       - name: Start Grafana
         run: |
           docker compose pull
-          GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+          GRAFANA_VERSION=13.1.0 GRAFANA_IMAGE=grafana/grafana docker compose up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main
