@@ -3,6 +3,8 @@
 *.json
 !/package.json
 !/package-lock.json
+!/tsconfig.json
+!/src/plugin.json
 *.txt
 *.log
 *.xml
@@ -18,6 +20,7 @@ cache/
 
 # Node modules and dependencies
 node_modules/
+.eslintcache
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -30,6 +33,8 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+maxmarkusprogram-prtg-datasource/
+maxmarkusprogram-prtg-datasource_/
 *.min.js
 *.min.css
 
@@ -59,3 +64,5 @@ Thumbs.db
 *~
 maxmarkusprogram-prtg-datasource/todo_.md
 maxmarkusprogram-prtg-datasource/todo.md
+image.png
+todo.md

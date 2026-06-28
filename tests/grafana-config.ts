@@ -22,4 +22,3 @@ export const GRAFANA_CONFIG = {
       console.error('Grafana is not ready:', error);    return false;
     }
   }
-  

@@ -599,4 +599,3 @@ export const timezoneOptions = [
     { label: 'WET', value: 'WET' },
     { label: 'Zulu', value: 'Zulu' },
 ];
-  

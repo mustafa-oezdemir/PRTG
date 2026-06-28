@@ -32,7 +32,7 @@ export function createStreamingQueryObservable(
     .getDataStream({
       addr: {
         scope: LiveChannelScope.DataSource,
-        namespace: datasourceUid,
+        stream: datasourceUid,
         path: streamPath,
         data: {
           ...query,

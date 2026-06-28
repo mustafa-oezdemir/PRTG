@@ -43,4 +43,3 @@ declare module '@grafana/plugin-e2e' {
   
     export { expect } from '@playwright/test';
   }
-  

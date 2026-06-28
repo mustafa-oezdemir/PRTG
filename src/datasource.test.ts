@@ -238,7 +238,7 @@ describe('DataSource', () => {
 
         expect(mockLiveSrv.getDataStream).toHaveBeenCalledWith({
             addr: expect.objectContaining({
-                namespace: 'test-uid',
+                stream: 'test-uid',
                 path: 'prtg-stream/7_A_1025_Total',
                 data: expect.objectContaining({
                     sensorId: '1025',

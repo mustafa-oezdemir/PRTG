@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "Prtg",
+  "id": "maxmarkusprogram-prtg-datasource",
+  "autoEnabled": true,
+  "alerting": true,
+  "annotations": true,
+  "logs": true,
+  "metrics": true,
+  "streaming": true,
+  "backend": true,
+  "executable": "gpx_prtg",
+  "info": {
+    "description": "Grafana datasource plugin for PRTG Network Monitor",
+    "author": {
+      "name": "Mustafa Özdemir"
+    },
+    "keywords": ["datasource"],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=10.4.0",
+    "plugins": []
+  }
+}
