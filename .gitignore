@@ -5,6 +5,7 @@
 !/package-lock.json
 !/tsconfig.json
 !/src/plugin.json
+!/provisioning/dashboards/prtg/prtg-health.json
 *.txt
 *.log
 *.xml
