@@ -12,5 +12,6 @@ datasources:
     jsonData:
       path: '${PRTG_PATH}'
       cacheTime: 6000
+      selectedTimezone: '${TIMEZONE}'
     secureJsonData:
       apiKey: '${PRTG_API}'
