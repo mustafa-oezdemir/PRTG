@@ -3,9 +3,13 @@ import { test as setup } from '@playwright/test';
 const authFile = 'playwright/.auth/admin.json';
 
 setup('authenticate', async ({ page }) => {
+  setup.setTimeout(120000);
+
   // Create the auth directory if it doesn't exist using Playwright's built-in capabilities
   const path = require('path');
   const fs = require('fs');
+  const adminUser = process.env.GRAFANA_USERNAME || process.env.GF_SECURITY_ADMIN_USER || 'admin';
+  const adminPassword = process.env.GRAFANA_PASSWORD || process.env.GF_SECURITY_ADMIN_PASSWORD || 'admin';
 
   const authDir = path.dirname(authFile);
   if (!fs.existsSync(authDir)) {
@@ -94,8 +98,8 @@ setup('authenticate', async ({ page }) => {
     }
 
     // Fill login form
-    await usernameField.fill('admin');
-    await passwordField.fill('admin');
+    await usernameField.fill(adminUser);
+    await passwordField.fill(adminPassword);
 
     console.log('✏️ Filled login credentials');
 
@@ -133,46 +137,23 @@ setup('authenticate', async ({ page }) => {
 
     console.log('🚀 Submitted login form');
 
-    // Wait for successful login with multiple indicators
-    const successIndicators = [
-      'div.sidemenu',
-      '[data-testid="sidemenu"]',
-      'nav[aria-label*="menu"]',
-      '.page-container',
-      '.main-view',
-      '[data-testid="data-testid-sidemenu"]',
-      '.grafana-app',
-      '.main-view .page-container',
-    ];
+    // Wait for URL to leave login page first; this is the fastest reliable success check.
+    console.log('🔍 Waiting for redirect away from login page...');
+    try {
+      await page.waitForURL((url) => {
+        const href = url.toString();
+        return !href.includes('/login') && !href.includes('/auth');
+      }, { timeout: 20000 });
+      console.log('✅ URL indicates successful login');
+    } catch (_e) {
+      const loginError = await page
+        .locator('.alert-error, [role="alert"], [aria-live="assertive"], .css-1w5x5d2')
+        .first()
+        .textContent()
+        .catch(() => null);
 
-    let loginSuccessful = false;
-
-    // Try different success indicators with longer timeout
-    for (const indicator of successIndicators) {
-      try {
-        console.log(`🔍 Looking for success indicator: ${indicator}`);
-        await page.waitForSelector(indicator, { timeout: 15000 });
-        loginSuccessful = true;
-        console.log(`✅ Found success indicator: ${indicator}`);
-        break;
-      } catch (e) {
-        console.log(`❌ Indicator not found: ${indicator}`);
-        // Continue to next indicator
-      }
-    }
-
-    // Alternative: check URL change
-    if (!loginSuccessful) {
-      console.log('🔍 Checking URL for successful redirect...');
-      try {
-        await page.waitForFunction(
-          () => !window.location.href.includes('/login'),
-          { timeout: 15000 }
-        );
-        loginSuccessful = true;
-        console.log('✅ URL indicates successful login');
-      } catch (e) {
-        console.log('❌ URL check failed');
+      if (loginError) {
+        throw new Error(`❌ Authentication failed: ${loginError.trim()}`);
       }
     }
 
@@ -200,13 +181,21 @@ setup('authenticate', async ({ page }) => {
       fs.mkdirSync(screenshotDir, { recursive: true });
     }
 
-    // Take screenshot for debugging
+    // Take screenshot for debugging if page/context is still alive.
     const timestamp = Date.now();
-    await page.screenshot({
-      path: `${screenshotDir}/auth-error-${timestamp}.png`,
-      fullPage: true,
-    });
-    console.log(`📸 Screenshot saved: auth-error-${timestamp}.png`);
+    if (!page.isClosed()) {
+      try {
+        await page.screenshot({
+          path: `${screenshotDir}/auth-error-${timestamp}.png`,
+          fullPage: true,
+        });
+        console.log(`📸 Screenshot saved: auth-error-${timestamp}.png`);
+      } catch (screenshotError) {
+        console.log(
+          `⚠️ Could not capture screenshot: ${screenshotError instanceof Error ? screenshotError.message : String(screenshotError)}`
+        );
+      }
+    }
 
     // Check if we can proceed anyway (maybe anonymous access works)
     const currentUrl = page.url();
