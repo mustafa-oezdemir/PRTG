@@ -20,7 +20,9 @@ jobs:
       has-e2e: ${{ steps.check-for-e2e.outputs.has-e2e }}
       has-backend: ${{ steps.check-for-backend.outputs.has-backend }}
     env:
-      GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
+      GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN || vars.GRAFANA_ACCESS_POLICY_TOKEN }}
+      GRAFANA_PLUGIN_ROOT_URLS: ${{ vars.GRAFANA_PLUGIN_ROOT_URLS || vars.GRAFANA_ROOT_URLS }}
+      GRAFANA_SIGN_PUBLIC: ${{ vars.GRAFANA_SIGN_PUBLIC }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -55,21 +57,21 @@ jobs:
         if: steps.check-for-backend.outputs.has-backend == 'true'
         uses: actions/setup-go@v6
         with:
-          go-version: '1.22'
+          go-version-file: go.mod
+
+      - name: Install Mage
+        if: steps.check-for-backend.outputs.has-backend == 'true'
+        run: |
+          go install github.com/magefile/mage@v1.17.2
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Test backend
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b # v3.1.0
-        with:
-          version: latest
-          args: coverage
+        run: mage -v coverage
 
       - name: Build backend
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b # v3.1.0
-        with:
-          version: latest
-          args: buildAll
+        run: mage -v buildAll
 
       - name: Check for E2E
         id: check-for-e2e
@@ -80,8 +82,13 @@ jobs:
           fi
 
       - name: Sign plugin
-        run: npm run sign
-        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
+        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' && (env.GRAFANA_PLUGIN_ROOT_URLS != '' || env.GRAFANA_SIGN_PUBLIC == 'true') }}
+        run: |
+          if [ -n "${GRAFANA_PLUGIN_ROOT_URLS}" ]; then
+            npm run sign -- --rootUrls "${GRAFANA_PLUGIN_ROOT_URLS}"
+          else
+            npm run sign
+          fi
 
       - name: Get plugin metadata
         id: metadata

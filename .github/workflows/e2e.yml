@@ -39,13 +39,18 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Setup Go environment
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
       - name: Install npm dependencies
         run: npm ci
 
       - name: Install Mage
-        uses: magefile/mage-action@v3
-        with:
-          install-only: true
+        run: |
+          go install github.com/magefile/mage@v1.17.2
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Build binaries
         run: mage -v build:linux
