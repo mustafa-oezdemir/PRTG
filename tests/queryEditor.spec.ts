@@ -35,6 +35,18 @@ const getScreenshotPath = (filename: string) => `e2e/testFoto/${filename}`;
 
 const getQueryEditorRow = (page: Page) => page.locator('.query-editor-row').first();
 
+const queryEditorFieldIds = {
+  queryType: '#query-editor-queryType',
+  group: '#query-editor-group',
+  device: '#query-editor-device',
+  sensor: '#query-editor-sensor',
+  channel: '#query-editor-channel',
+  streamingToggle: '#query-editor-is-stream',
+  streamInterval: '#query-editor-stream-interval',
+  property: '#query-editor-property',
+  filterProperty: '#query-editor-filterProperty',
+};
+
 async function selectComboboxOption(page: Page, row: Locator, label: RegExp, optionName: RegExp, fallbackId: string) {
   const combobox = row.getByRole('combobox', { name: label }).first();
 
@@ -223,6 +235,12 @@ test('query editor should render', async ({ panelEditPage, readProvisionedDataSo
 
   // Basic assertion that the panel editor loaded with our datasource
   await expect(page.locator('.query-editor-row')).toBeVisible();
+  await expect(page.locator(queryEditorFieldIds.queryType)).toBeVisible();
+  await expect(page.locator(queryEditorFieldIds.group)).toBeVisible();
+  await expect(page.locator(queryEditorFieldIds.device)).toBeVisible();
+  await expect(page.locator(queryEditorFieldIds.sensor)).toBeVisible();
+  await expect(page.locator(queryEditorFieldIds.channel)).toBeVisible();
+  await expect(page.locator(queryEditorFieldIds.streamingToggle)).toBeVisible();
 
   // Don't try to refresh the panel as it's timing out
   // Instead just verify elements are present
@@ -254,65 +272,50 @@ test('should be able to interact with basic form elements', async ({
 
   // Wait for query editor to load
   await page.waitForSelector('.query-editor-row', { timeout: 300000 });
+  await expect(page.locator(queryEditorFieldIds.queryType)).toBeVisible({ timeout: 30000 });
 
   // Take initial screenshot
   await page.screenshot({
     path: getScreenshotPath(`query-editor-initial-${Date.now()}.png`),
   });
 
-  // Try to find any input in the query editor
-  try {
-    // Look for any text inputs
-    const textInputs = page.locator('.query-editor-row input[type="text"]');
-    const count = await textInputs.count();
+  const queryType = page.getByRole('combobox', { name: /Query Type/i }).first();
+  await expect(queryType).toBeVisible();
 
-    if (count > 0) {
-      // Fill the first text input we find
-      await textInputs.first().fill('Metrics');
-      await page.waitForTimeout(1000);
+  await queryType.click();
+  await page
+    .getByRole('option', { name: /^Text$/i })
+    .first()
+    .click();
+  await expect(page.locator(queryEditorFieldIds.property)).toBeVisible({ timeout: 10000 });
+  await expect(page.locator(queryEditorFieldIds.filterProperty)).toBeVisible({ timeout: 10000 });
 
-      // Take screenshot after filling text input
-      await page.screenshot({
-        path: getScreenshotPath(`query-editor-after-text-input-${Date.now()}.png`),
-      });
-    }
+  await queryType.click();
+  await page
+    .getByRole('option', { name: /^Metrics$/i })
+    .first()
+    .click();
 
-    // Look for any Select components (they often have class containing 'select-container')
-    const selectElements = page.locator(
-      '.query-editor-row .select-container, .query-editor-row [data-testid*="select"]'
-    );
-    const selectCount = await selectElements.count();
+  const streamingToggleLabel = page.locator('label[for="query-editor-is-stream"]').first();
+  await expect(streamingToggleLabel).toBeVisible();
+  await streamingToggleLabel.click();
+  await expect(page.locator(queryEditorFieldIds.streamInterval)).toBeVisible({ timeout: 10000 });
 
-    if (selectCount > 0) {
-      // Click on the first select to open it
-      await selectElements.first().click();
-      await page.waitForTimeout(10000);
+  const includeGroupToggle = page.locator('label[for^="query-editor-include-group-"]').first();
+  const includeDeviceToggle = page.locator('label[for^="query-editor-include-device-"]').first();
+  const includeSensorToggle = page.locator('label[for^="query-editor-include-sensor-"]').first();
 
-      // Take screenshot with select dropdown open
-      await page.screenshot({
-        path: getScreenshotPath(`query-editor-select-open-${Date.now()}.png`),
-      });
+  await expect(includeGroupToggle).toBeVisible();
+  await expect(includeDeviceToggle).toBeVisible();
+  await expect(includeSensorToggle).toBeVisible();
 
-      // Try to click an option if available
-      const options = page.locator('[role="option"], .select-option');
-      if ((await options.count()) > 0) {
-        await options.first().click();
-        await page.waitForTimeout(10000);
+  await includeGroupToggle.click();
+  await includeDeviceToggle.click();
+  await includeSensorToggle.click();
 
-        // Take screenshot after selecting option
-        await page.screenshot({
-          path: getScreenshotPath(`query-editor-after-select-${Date.now()}.png`),
-        });
-      }
-    }
-  } catch (e: unknown) {
-    console.log('Could not interact with form elements, continuing with test', e);
-
-    // Take screenshot if there's an error
-    await page.screenshot({
-      path: getScreenshotPath(`query-editor-error-${Date.now()}.png`),
-    });
-  }
+  await page.screenshot({
+    path: getScreenshotPath(`query-editor-interactions-${Date.now()}.png`),
+  });
 
   // Success if we get here without timing out
   expect(true).toBeTruthy();
@@ -331,6 +334,8 @@ test('should have a query editor with basic structure', async ({ panelEditPage, 
 
   // Check basic structure is present
   await expect(page.locator('.query-editor-row')).toBeVisible({ timeout: 30000 });
+  await expect(page.locator(queryEditorFieldIds.queryType)).toBeVisible({ timeout: 30000 });
+  await expect(page.locator(queryEditorFieldIds.streamingToggle)).toBeVisible({ timeout: 30000 });
 
   // Take a screenshot for debugging
   await page.screenshot({
