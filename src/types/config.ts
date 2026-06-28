@@ -4,6 +4,8 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   path?: string;
   cacheTime?: number;
   timeZone?: string;
+  timezone?: string;
+  selectedTimezone?: string;
 }
 
 export interface MySecureJsonData {

@@ -3,3 +3,8 @@ services:
     extends:
       file: .config/docker-compose-base.yaml
       service: grafana
+    environment:
+      PRTG_PATH: ${PRTG_PATH:-}
+      PRTG_API: ${PRTG_API:-}
+      PRTG_CACHE_TIME: ${PRTG_CACHE_TIME:-6000}
+      TIMEZONE: ${TIMEZONE:-Europe/Berlin}

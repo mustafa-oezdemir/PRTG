@@ -3,6 +3,11 @@ import { test, expect } from '@grafana/plugin-e2e'
 // Create screenshots directory path
 const getScreenshotPath = (filename: string) => `e2e/testFoto/${filename}`
 
+const getProvisionedCacheTime = (jsonData: Record<string, unknown> | undefined) => {
+  const cacheTime = Number(jsonData?.cacheTime)
+  return Number.isFinite(cacheTime) && cacheTime >= 10 ? String(cacheTime) : '6000'
+}
+
 // Simple smoke test to verify the config editor loads
 test('should render config editor', async ({ createDataSourceConfigPage, readProvisionedDataSource, page }) => {
   const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' })
@@ -240,7 +245,7 @@ test('"Save & test" should be successful when configuration is valid', async ({
 
   if (cacheTimeElement) {
     await cacheTimeElement.clear()
-    await cacheTimeElement.fill(String((ds.jsonData as any)?.cacheTime || '6000'))
+    await cacheTimeElement.fill(getProvisionedCacheTime(ds.jsonData as Record<string, unknown> | undefined))
     await page.waitForTimeout(500)
   }
 
@@ -518,7 +523,7 @@ test('provisioned data source test should capture the expected 500 error', async
 
   if (cacheTimeElement) {
     await cacheTimeElement.clear()
-    await cacheTimeElement.fill(String((datasource.jsonData as any)?.cacheTime || '6000'))
+    await cacheTimeElement.fill(getProvisionedCacheTime(datasource.jsonData as Record<string, unknown> | undefined))
     await page.waitForTimeout(500)
   }
 

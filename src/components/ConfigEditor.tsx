@@ -3,14 +3,17 @@ import React, { ChangeEvent } from 'react';
 import { Combobox, InlineField, Input, SecretInput } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions, MySecureJsonData } from '../types';
-import { timezoneOptions } from '../timezone'
+import { timezoneOptions } from '../timezone';
 
-interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions, MySecureJsonData> { }
+const DEFAULT_CACHE_TIME = 6000;
+const DEFAULT_TIME_ZONE = 'Europe/Berlin';
+
+interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions, MySecureJsonData> {}
 
 export function ConfigEditor(props: Props) {
   const { onOptionsChange, options } = props;
   const { jsonData, secureJsonFields, secureJsonData } = options;
-  const selectedTimeZone = jsonData.timeZone || (jsonData as { timezone?: string }).timezone || 'UTC';
+  const selectedTimeZone = jsonData.timeZone || jsonData.timezone || jsonData.selectedTimezone || DEFAULT_TIME_ZONE;
 
   const onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
     const updatedJsonData = { ...options.jsonData };
@@ -51,7 +54,7 @@ export function ConfigEditor(props: Props) {
     const inputValue = event.target.value;
 
     if (inputValue === '') {
-      updatedJsonData.cacheTime = 60;
+      updatedJsonData.cacheTime = DEFAULT_CACHE_TIME;
     } else {
       const value = parseInt(inputValue, 10);
       if (!isNaN(value) && value >= 10) {
@@ -104,7 +107,7 @@ export function ConfigEditor(props: Props) {
         <Input
           id="config-editor-cache-time"
           onChange={onCacheTimeChange}
-          value={jsonData.cacheTime || 60}
+          value={jsonData.cacheTime ?? DEFAULT_CACHE_TIME}
           placeholder="Enter the cache time in seconds"
           width={60}
           type="number"
@@ -112,12 +115,7 @@ export function ConfigEditor(props: Props) {
         />
       </InlineField>
       <InlineField label="Timezone" labelWidth={14} interactive tooltip={'Select the timezone'} required>
-        <Combobox
-          options={timezoneOptions}
-          value={selectedTimeZone}
-          onChange={onTimezoneChange}
-          width={60}
-        />
+        <Combobox options={timezoneOptions} value={selectedTimeZone} onChange={onTimezoneChange} width={60} />
       </InlineField>
     </div>
   );

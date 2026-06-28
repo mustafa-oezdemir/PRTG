@@ -8,6 +8,7 @@ import { MyDataSourceOptions, MySecureJsonData } from '../types';
 jest.mock('../timezone', () => ({
   timezoneOptions: [
     { label: 'UTC', value: 'UTC' },
+    { label: 'Europe/Berlin', value: 'Europe/Berlin' },
     { label: 'America/New_York', value: 'America/New_York' },
   ],
 }));
@@ -162,7 +163,7 @@ describe('ConfigEditor', () => {
       ...defaultProps.options,
       jsonData: {
         ...defaultProps.options.jsonData,
-        cacheTime: 60,
+        cacheTime: 6000,
       },
     });
   });
@@ -245,6 +246,41 @@ describe('ConfigEditor', () => {
     render(<ConfigEditor {...propsWithLegacyTimezone} />);
 
     expect(screen.getByTestId('timezone-combobox')).toHaveValue('America/New_York');
+  });
+
+  it('uses provisioned selectedTimezone value when timeZone is missing', () => {
+    const propsWithProvisionedTimezone = {
+      ...defaultProps,
+      options: {
+        ...defaultProps.options,
+        jsonData: {
+          path: '',
+          cacheTime: 6000,
+          selectedTimezone: 'America/New_York',
+        },
+      },
+    };
+
+    render(<ConfigEditor {...propsWithProvisionedTimezone} />);
+
+    expect(screen.getByTestId('timezone-combobox')).toHaveValue('America/New_York');
+  });
+
+  it('uses local defaults when cache time and timezone are not configured', () => {
+    const propsWithoutDefaults = {
+      ...defaultProps,
+      options: {
+        ...defaultProps.options,
+        jsonData: {
+          path: '',
+        },
+      },
+    };
+
+    render(<ConfigEditor {...propsWithoutDefaults} />);
+
+    expect(screen.getByTestId('config-editor-cache-time')).toHaveValue(6000);
+    expect(screen.getByTestId('timezone-combobox')).toHaveValue('Europe/Berlin');
   });
 
   it('marks API key as configured when secure field exists', () => {
