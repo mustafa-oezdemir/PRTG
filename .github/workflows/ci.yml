@@ -106,8 +106,18 @@ jobs:
       - name: Package plugin
         id: package-plugin
         run: |
-          mv dist "${PLUGIN_ID}"
+          rm -rf "${PLUGIN_ID}"
+          mkdir -p "${PLUGIN_ID}"
+          cp -a dist/. "${PLUGIN_ID}/"
           zip -r "${ARCHIVE}" "${PLUGIN_ID}"
+        env:
+          ARCHIVE: ${{ steps.metadata.outputs.archive }}
+          PLUGIN_ID: ${{ steps.metadata.outputs.plugin-id }}
+
+      - name: Verify archive structure
+        run: |
+          unzip -l "${ARCHIVE}" | head -n 20
+          unzip -l "${ARCHIVE}" | grep "${PLUGIN_ID}/plugin.json"
         env:
           ARCHIVE: ${{ steps.metadata.outputs.archive }}
           PLUGIN_ID: ${{ steps.metadata.outputs.plugin-id }}
