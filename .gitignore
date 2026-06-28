@@ -1,6 +1,8 @@
 # Large data files
 *.csv
 *.json
+!/package.json
+!/package-lock.json
 *.txt
 *.log
 *.xml
