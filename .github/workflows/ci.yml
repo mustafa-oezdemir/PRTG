@@ -106,8 +106,8 @@ jobs:
       - name: Package plugin
         id: package-plugin
         run: |
-          mv dist ${PLUGIN_ID}
-          zip ${ARCHIVE} ${PLUGIN_ID} -r
+          mv dist "${PLUGIN_ID}"
+          zip -r "${ARCHIVE}" "${PLUGIN_ID}"
         env:
           ARCHIVE: ${{ steps.metadata.outputs.archive }}
           PLUGIN_ID: ${{ steps.metadata.outputs.plugin-id }}
