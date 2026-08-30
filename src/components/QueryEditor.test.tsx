@@ -521,6 +521,9 @@ describe('QueryEditor', () => {
       render(<QueryEditor {...propsWithData} />);
 
       const channelSelect = screen.getByTestId('query-editor-channel');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'channel1' })).toBeInTheDocument();
+      });
       await user.selectOptions(channelSelect, ['channel1', 'channel2']);
 
       expect(onChange).toHaveBeenCalledWith(
