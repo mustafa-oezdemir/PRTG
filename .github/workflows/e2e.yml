@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   resolve-versions:
@@ -74,3 +73,18 @@ jobs:
       - name: Run Playwright tests
         id: run-tests
         run: npx playwright test
+
+      - name: Grafana diagnostics
+        if: ${{ failure() }}
+        run: |
+          docker compose ps --all
+          docker compose logs --no-color --timestamps
+          for endpoint in /api/health /login; do
+            echo "Checking http://localhost:3001${endpoint}"
+            curl --verbose --max-time 10 "http://localhost:3001${endpoint}" || \
+              echo "::warning::Grafana endpoint ${endpoint} was not reachable (curl exit $?)."
+          done
+
+      - name: Stop Grafana
+        if: ${{ always() }}
+        run: docker compose down

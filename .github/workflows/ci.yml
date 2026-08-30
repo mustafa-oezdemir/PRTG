@@ -217,7 +217,7 @@ jobs:
       - name: Start Grafana
         run: |
           docker compose pull
-          GRAFANA_USERNAME=admin GRAFANA_PASSWORD=admin ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+          DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main # zizmor: ignore[unpinned-uses] provided by grafana
@@ -242,12 +242,19 @@ jobs:
           github-token: ${{ github.token }}
           test-outcome: ${{ steps.run-tests.outcome }}
 
-      - name: Docker logs
-        if: ${{ always() && steps.run-tests.outcome == 'failure' }}
+      - name: Grafana diagnostics
+        if: ${{ failure() }}
         run: |
-          docker logs maxmarkusprogram-prtg-datasource >& grafana-server.log
+          docker compose ps --all
+          docker compose logs --no-color --timestamps
+          for endpoint in /api/health /login; do
+            echo "Checking http://localhost:3001${endpoint}"
+            curl --verbose --max-time 10 "http://localhost:3001${endpoint}" || \
+              echo "::warning::Grafana endpoint ${endpoint} was not reachable (curl exit $?)."
+          done
 
       - name: Stop grafana docker
+        if: ${{ always() }}
         run: docker compose down
 
       # Uncomment this step to upload the server log to Github artifacts. Remember Github artifacts are public on the Internet if the repository is public.
