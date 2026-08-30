@@ -35,7 +35,6 @@ jobs:
       attestations: write
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-      GRAFANA_PLUGIN_ROOT_URLS: ${{ vars.GRAFANA_PLUGIN_ROOT_URLS || vars.GRAFANA_ROOT_URLS }}
       RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
       RELEASE_TAG: main-build
       RELEASE_TITLE: Latest main build
@@ -89,12 +88,7 @@ jobs:
 
       - name: Sign plugin when a policy token is configured
         if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
-        run: |
-          if [ -n "${GRAFANA_PLUGIN_ROOT_URLS}" ]; then
-            npm run sign -- --rootUrls "${GRAFANA_PLUGIN_ROOT_URLS}"
-          else
-            npm run sign
-          fi
+        run: npm run sign
 
       - name: Get plugin metadata
         id: metadata
