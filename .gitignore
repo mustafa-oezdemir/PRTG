@@ -70,3 +70,4 @@ todo.md
 e2e/testFoto/
 test-results/
 playwright-report/
+tests/
