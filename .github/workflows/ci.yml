@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build, lint and unit tests
@@ -19,10 +23,6 @@ jobs:
       plugin-version: ${{ steps.metadata.outputs.plugin-version }}
       has-e2e: ${{ steps.check-for-e2e.outputs.has-e2e }}
       has-backend: ${{ steps.check-for-backend.outputs.has-backend }}
-    env:
-      GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN || vars.GRAFANA_ACCESS_POLICY_TOKEN }}
-      GRAFANA_PLUGIN_ROOT_URLS: ${{ vars.GRAFANA_PLUGIN_ROOT_URLS || vars.GRAFANA_ROOT_URLS }}
-      GRAFANA_SIGN_PUBLIC: ${{ vars.GRAFANA_SIGN_PUBLIC }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -81,27 +81,16 @@ jobs:
             echo "has-e2e=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Sign plugin
-        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' && (env.GRAFANA_PLUGIN_ROOT_URLS != '' || env.GRAFANA_SIGN_PUBLIC == 'true') }}
-        run: |
-          if [ -n "${GRAFANA_PLUGIN_ROOT_URLS}" ]; then
-            npm run sign -- --rootUrls "${GRAFANA_PLUGIN_ROOT_URLS}"
-          else
-            npm run sign
-          fi
-
       - name: Get plugin metadata
         id: metadata
         run: |
-          sudo apt-get install jq
+          GRAFANA_PLUGIN_ID=$(node -p "require('./dist/plugin.json').id")
+          GRAFANA_PLUGIN_VERSION=$(node -p "require('./dist/plugin.json').info.version")
+          GRAFANA_PLUGIN_ARTIFACT="${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip"
 
-          export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
-          export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
-          export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
-
-          echo "plugin-id=${GRAFANA_PLUGIN_ID}" >> $GITHUB_OUTPUT
-          echo "plugin-version=${GRAFANA_PLUGIN_VERSION}" >> $GITHUB_OUTPUT
-          echo "archive=${GRAFANA_PLUGIN_ARTIFACT}" >> $GITHUB_OUTPUT
+          echo "plugin-id=${GRAFANA_PLUGIN_ID}" >> "$GITHUB_OUTPUT"
+          echo "plugin-version=${GRAFANA_PLUGIN_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "archive=${GRAFANA_PLUGIN_ARTIFACT}" >> "$GITHUB_OUTPUT"
 
       - name: Package plugin
         id: package-plugin
@@ -153,9 +142,17 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Resolve Grafana E2E versions
-        id: resolve-versions
+      - name: Resolve supported Grafana versions
+        id: resolve-upstream-versions
         uses: grafana/plugin-actions/e2e-version@main # zizmor: ignore[unpinned-uses] provided by grafana
+
+      - name: Use Grafana OSS images
+        id: resolve-versions
+        env:
+          UPSTREAM_MATRIX: ${{ steps.resolve-upstream-versions.outputs.matrix }}
+        run: |
+          OSS_MATRIX=$(python3 -c 'import json, os; print(json.dumps([{**item, "name": "grafana"} for item in json.loads(os.environ["UPSTREAM_MATRIX"])], separators=(",", ":")))')
+          echo "matrix=${OSS_MATRIX}" >> "$GITHUB_OUTPUT"
 
   playwright-tests:
     needs: [resolve-versions, build]
@@ -168,7 +165,7 @@ jobs:
       fail-fast: false
       matrix:
         GRAFANA_IMAGE: ${{fromJson(needs.resolve-versions.outputs.matrix)}}
-    name: e2e test ${{ matrix.GRAFANA_IMAGE.name }}@${{ matrix.GRAFANA_IMAGE.VERSION }}
+    name: e2e OSS ${{ matrix.GRAFANA_IMAGE.VERSION }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -217,7 +214,7 @@ jobs:
       - name: Start Grafana
         run: |
           docker compose pull
-          DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+          ANONYMOUS_AUTH_ENABLED=true DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main # zizmor: ignore[unpinned-uses] provided by grafana

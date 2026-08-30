@@ -21,12 +21,29 @@ jobs:
       id-token: write
       attestations: write
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Verify release tag and signing token
+        env:
+          GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
+        run: |
+          EXPECTED_TAG="v$(node -p "require('./package.json').version")"
+
+          if [ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match package.json version ${EXPECTED_TAG}."
+            exit 1
+          fi
+
+          if [ -z "${GRAFANA_ACCESS_POLICY_TOKEN}" ]; then
+            echo "::error::Repository secret GRAFANA_ACCESS_POLICY_TOKEN is required."
+            exit 1
+          fi
 
       - name: Build plugin release
         uses: grafana/plugin-actions/build-plugin@main # zizmor: ignore[unpinned-uses] provided by grafana

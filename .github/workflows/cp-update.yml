@@ -14,16 +14,21 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: create-plugin-update
+  cancel-in-progress: false
+
 env:
-  BASE_BRANCH: ${{ github.event.inputs.base || 'main' }}
-  PLUGIN_DIR: maxmarkusprogram-prtg-datasource
-  REPOSITORY: 1DeliDolu/PRTG
-  UPDATE_TOKEN: ${{ github.token }}
+  BASE_BRANCH: ${{ inputs.base || 'main' }}
+  PLUGIN_DIR: .
+  REPOSITORY: ${{ github.repository }}
+  UPDATE_TOKEN: ${{ secrets.CREATE_PLUGIN_UPDATE_TOKEN || github.token }}
 
 jobs:
   create-plugin-update:
     name: Create plugin update PR
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -31,7 +36,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ env.BASE_BRANCH }}
-          repository: ${{ env.REPOSITORY }}
           token: ${{ env.UPDATE_TOKEN }}
 
       - name: Setup Node.js
@@ -117,7 +121,7 @@ jobs:
           branch="update-grafana-create-plugin-${LATEST_VERSION}"
           title="chore: bump @grafana/create-plugin configuration to ${LATEST_VERSION}"
           body="$(cat <<EOF
-          Updates \`${PLUGIN_DIR}\` from @grafana/create-plugin ${CONFIGURED_VERSION} to ${LATEST_VERSION}.
+          Updates this plugin from @grafana/create-plugin ${CONFIGURED_VERSION} to ${LATEST_VERSION}.
 
           This PR was generated automatically by the Create Plugin Update workflow.
 

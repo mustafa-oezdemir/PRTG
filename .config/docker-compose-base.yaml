@@ -6,7 +6,7 @@ services:
     build:
       context: .
       args:
-        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_image: ${GRAFANA_IMAGE:-grafana}
         grafana_version: ${GRAFANA_VERSION:-12.0.2}
         development: ${DEVELOPMENT:-false}
         anonymous_auth_enabled: ${ANONYMOUS_AUTH_ENABLED:-true}

@@ -1,7 +1,11 @@
 name: Main Build Release
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
     branches:
       - main
   schedule:
@@ -17,23 +21,31 @@ concurrency:
 
 jobs:
   build-and-publish:
-    if: github.ref == 'refs/heads/main'
+    name: Build, validate and publish main preview
+    if: >-
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name != 'workflow_run' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
       id-token: write
       attestations: write
     env:
-      GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN || vars.GRAFANA_ACCESS_POLICY_TOKEN }}
+      GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
       GRAFANA_PLUGIN_ROOT_URLS: ${{ vars.GRAFANA_PLUGIN_ROOT_URLS || vars.GRAFANA_ROOT_URLS }}
-      GRAFANA_SIGN_PUBLIC: ${{ vars.GRAFANA_SIGN_PUBLIC }}
+      RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
       RELEASE_TAG: main-build
       RELEASE_TITLE: Latest main build
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout tested revision
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
+          ref: ${{ env.RELEASE_SHA }}
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v5
@@ -52,6 +64,9 @@ jobs:
       - name: Check types
         run: npm run typecheck
 
+      - name: Lint
+        run: npm run lint
+
       - name: Unit tests
         run: npm run test:ci
 
@@ -63,14 +78,17 @@ jobs:
           go install github.com/magefile/mage@v1.17.2
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
+      - name: Test backend
+        run: mage -v coverage
+
       - name: Build backend
         run: mage -v buildAll
 
       - name: Execute permissions on binaries
         run: chmod 0755 dist/gpx_*
 
-      - name: Sign plugin
-        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' && (env.GRAFANA_PLUGIN_ROOT_URLS != '' || env.GRAFANA_SIGN_PUBLIC == 'true') }}
+      - name: Sign plugin when a policy token is configured
+        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
         run: |
           if [ -n "${GRAFANA_PLUGIN_ROOT_URLS}" ]; then
             npm run sign -- --rootUrls "${GRAFANA_PLUGIN_ROOT_URLS}"
@@ -84,12 +102,18 @@ jobs:
           PLUGIN_ID=$(node -p "require('./dist/plugin.json').id")
           PLUGIN_VERSION=$(node -p "require('./dist/plugin.json').info.version")
           ARCHIVE="${PLUGIN_ID}-${PLUGIN_VERSION}.zip"
+          SIGNED=false
+
+          if [ -f dist/MANIFEST.txt ]; then
+            SIGNED=true
+          fi
 
           echo "plugin-id=${PLUGIN_ID}" >> "$GITHUB_OUTPUT"
           echo "plugin-version=${PLUGIN_VERSION}" >> "$GITHUB_OUTPUT"
           echo "archive=${ARCHIVE}" >> "$GITHUB_OUTPUT"
+          echo "signed=${SIGNED}" >> "$GITHUB_OUTPUT"
 
-      - name: Package plugin
+      - name: Package plugin and generate checksums
         env:
           ARCHIVE: ${{ steps.metadata.outputs.archive }}
           PLUGIN_ID: ${{ steps.metadata.outputs.plugin-id }}
@@ -101,15 +125,26 @@ jobs:
           cd "${RELEASE_DIR}"
           zip -r "../${ARCHIVE}" "${PLUGIN_ID}"
           cd ..
+          sha1sum "${ARCHIVE}" > "${ARCHIVE}.sha1"
           sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
 
-      - name: Check plugin.json
+      - name: Verify archive structure and permissions
+        env:
+          ARCHIVE: ${{ steps.metadata.outputs.archive }}
+          PLUGIN_ID: ${{ steps.metadata.outputs.plugin-id }}
+        run: |
+          zipinfo -l "${ARCHIVE}"
+          unzip -Z1 "${ARCHIVE}" | grep -Fx "${PLUGIN_ID}/plugin.json"
+
+      - name: Validate plugin package
         env:
           ARCHIVE: ${{ steps.metadata.outputs.archive }}
         run: |
           docker run --pull=always \
             -v "$PWD/${ARCHIVE}:/archive.zip" \
-            grafana/plugin-validator-cli -analyzer=metadatavalid /archive.zip
+            grafana/plugin-validator-cli \
+            -sourceCodeUri "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${RELEASE_SHA}" \
+            /archive.zip
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
@@ -120,23 +155,28 @@ jobs:
         env:
           ARCHIVE: ${{ steps.metadata.outputs.archive }}
           GH_TOKEN: ${{ github.token }}
+          SIGNED: ${{ steps.metadata.outputs.signed }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git tag --force "${RELEASE_TAG}" "${GITHUB_SHA}"
-          git push --force origin "refs/tags/${RELEASE_TAG}"
+          git tag --force "${RELEASE_TAG}" "${RELEASE_SHA}"
+          git push --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "refs/tags/${RELEASE_TAG}"
 
-          printf 'Automated build from %s on main.\n\nCommit: %s/%s/commit/%s\n' \
-            "${GITHUB_SHA::7}" \
+          printf 'Automated preview build from %s on main.\n\nCommit: %s/%s/commit/%s\nSigned: %s\n' \
+            "${RELEASE_SHA::7}" \
             "${GITHUB_SERVER_URL}" \
             "${GITHUB_REPOSITORY}" \
-            "${GITHUB_SHA}" > release-notes.md
+            "${RELEASE_SHA}" \
+            "${SIGNED}" > release-notes.md
 
           if gh release view "${RELEASE_TAG}" > /dev/null 2>&1; then
             gh release edit "${RELEASE_TAG}" \
               --title "${RELEASE_TITLE}" \
-              --notes-file release-notes.md
+              --notes-file release-notes.md \
+              --prerelease
 
             gh release view "${RELEASE_TAG}" --json assets --jq '.assets[].name' | while IFS= read -r asset; do
               if [ -n "${asset}" ]; then
@@ -151,4 +191,8 @@ jobs:
               --verify-tag
           fi
 
-          gh release upload "${RELEASE_TAG}" "${ARCHIVE}" "${ARCHIVE}.sha256" --clobber
+          gh release upload "${RELEASE_TAG}" \
+            "${ARCHIVE}" \
+            "${ARCHIVE}.sha1" \
+            "${ARCHIVE}.sha256" \
+            --clobber

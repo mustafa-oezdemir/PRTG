@@ -1,11 +1,15 @@
 name: E2E tests
 on:
-  pull_request:
+  workflow_dispatch:
   schedule:
     - cron: '0 11 * * *' #Run e2e tests once a day at 11 UTC
 
 permissions:
   contents: read
+
+concurrency:
+  group: scheduled-e2e
+  cancel-in-progress: true
 
 jobs:
   resolve-versions:
@@ -17,18 +21,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Resolve Grafana E2E versions
-        id: resolve-versions
+      - name: Resolve supported Grafana versions
+        id: resolve-upstream-versions
         uses: grafana/plugin-actions/e2e-version@main
+
+      - name: Use Grafana OSS images
+        id: resolve-versions
+        env:
+          UPSTREAM_MATRIX: ${{ steps.resolve-upstream-versions.outputs.matrix }}
+        run: |
+          OSS_MATRIX=$(python3 -c 'import json, os; print(json.dumps([{**item, "name": "grafana"} for item in json.loads(os.environ["UPSTREAM_MATRIX"])], separators=(",", ":")))')
+          echo "matrix=${OSS_MATRIX}" >> "$GITHUB_OUTPUT"
 
   playwright-tests:
     needs: resolve-versions
-    timeout-minutes: 60
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         GRAFANA_IMAGE: ${{fromJson(needs.resolve-versions.outputs.matrix)}}
-    name: e2e ${{ matrix.GRAFANA_IMAGE.name }}@${{ matrix.GRAFANA_IMAGE.VERSION }}
+    name: e2e OSS ${{ matrix.GRAFANA_IMAGE.VERSION }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -37,6 +49,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+          cache: npm
 
       - name: Setup Go environment
         uses: actions/setup-go@v6
@@ -58,12 +71,12 @@ jobs:
         run: npm run build
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npm exec playwright install chromium --with-deps
 
       - name: Start Grafana
         run: |
           docker compose pull
-          GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+          ANONYMOUS_AUTH_ENABLED=true DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main
@@ -72,7 +85,19 @@ jobs:
 
       - name: Run Playwright tests
         id: run-tests
-        run: npx playwright test
+        run: npm run e2e
+
+      - name: Upload Playwright diagnostics
+        if: ${{ failure() && !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-${{ matrix.GRAFANA_IMAGE.NAME }}-${{ matrix.GRAFANA_IMAGE.VERSION }}
+          path: |
+            playwright-report
+            test-results
+            tests/screenshots
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Grafana diagnostics
         if: ${{ failure() }}
