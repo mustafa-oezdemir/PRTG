@@ -1,6 +1,5 @@
 import React from 'react';
-import { SelectableValue } from '@grafana/data';
-import { AsyncMultiSelect, Combobox, InlineField, Stack, type ComboboxOption } from '@grafana/ui';
+import { Combobox, InlineField, MultiCombobox, Stack, type ComboboxOption } from '@grafana/ui';
 import { MyQuery, queryTypeOptions } from '../../types';
 
 interface MetricSelectionProps {
@@ -11,17 +10,17 @@ interface MetricSelectionProps {
   groupOptions: Array<ComboboxOption<string>>;
   deviceOptions: Array<ComboboxOption<string>>;
   sensorOptions: Array<ComboboxOption<string>>;
+  channelOptions: Array<ComboboxOption<string>>;
   selectedGroup: ComboboxOption<string> | null;
   selectedDevice: ComboboxOption<string> | null;
   selectedSensor: ComboboxOption<string> | null;
   sensorId: string;
   channelQuery: string[];
-  loadChannelOptions: () => Promise<Array<SelectableValue<string>>>;
   onQueryTypeChange: (option: ComboboxOption<string> | null) => void;
   onGroupChange: (option: ComboboxOption<string> | null) => void;
   onDeviceChange: (option: ComboboxOption<string> | null) => void;
   onSensorChange: (option: ComboboxOption<string> | null) => void;
-  onChannelChange: (values: Array<SelectableValue<string>>) => void;
+  onChannelChange: (values: Array<ComboboxOption<string>>) => void;
 }
 
 export function MetricSelection({
@@ -32,12 +31,12 @@ export function MetricSelection({
   groupOptions,
   deviceOptions,
   sensorOptions,
+  channelOptions,
   selectedGroup,
   selectedDevice,
   selectedSensor,
   sensorId,
   channelQuery,
-  loadChannelOptions,
   onQueryTypeChange,
   onGroupChange,
   onDeviceChange,
@@ -105,21 +104,17 @@ export function MetricSelection({
         </InlineField>
 
         <InlineField label="Channel" labelWidth={20} grow>
-          <AsyncMultiSelect
+          <MultiCombobox
             id="query-editor-channel"
             key={sensorId}
-            loadOptions={loadChannelOptions}
-            defaultOptions={true}
-            value={channelQuery.map((channel) => ({
-              label: channel,
-              value: channel,
-            }))}
+            options={channelOptions}
+            value={channelQuery}
             onChange={onChannelChange}
             width={47}
             placeholder={sensorId ? 'Select Channels (multiple allowed)' : 'First select a sensor'}
             isClearable
-            isDisabled={!sensorId}
-            noOptionsMessage="No channels available"
+            disabled={!sensorId}
+            loading={isLoading && !!sensorId}
           />
         </InlineField>
       </Stack>

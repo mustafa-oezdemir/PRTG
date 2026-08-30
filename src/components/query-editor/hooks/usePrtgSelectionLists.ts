@@ -8,7 +8,7 @@ export interface QueryEditorLists {
   groups: Array<ComboboxOption<string>>;
   devices: Array<ComboboxOption<string>>;
   sensors: Array<ComboboxOption<string>>;
-  channels: Array<SelectableValue<string>>;
+  channels: Array<ComboboxOption<string>>;
   values: Array<SelectableValue<string>>;
   properties: Array<SelectableValue<string>>;
   filterProperties: Array<SelectableValue<string>>;
@@ -272,48 +272,6 @@ export function usePrtgSelectionLists({
     return sensorOptions.find((option) => option.value === sensor) || (sensor ? { label: sensor, value: sensor } : null);
   }, [sensorOptions, sensor]);
 
-  const loadChannelOptions = useMemo(() => async () => {
-    if (!sensorId) {
-      return [];
-    }
-
-    try {
-      const response = await datasource.getChannels(sensorId);
-
-      if (!response) {
-        console.warn('No response received from getChannels');
-        return [];
-      }
-
-      if (typeof response === 'object' && 'values' in response) {
-        const values = response.values;
-        if (!Array.isArray(values) || values.length === 0) {
-          console.warn('No channel values found in response');
-          return [];
-        }
-
-        const channelData = values[0];
-        if (typeof channelData !== 'object') {
-          console.warn('Invalid channel data format');
-          return [];
-        }
-
-        return Object.keys(channelData)
-          .filter((key) => key !== 'datetime')
-          .map((key) => ({
-            label: key,
-            value: key,
-          }));
-      }
-
-      console.warn('Unexpected response format:', response);
-      return [];
-    } catch (error: any) {
-      console.error('Error loading channels:', error?.message || error);
-      return [];
-    }
-  }, [sensorId, datasource]);
-
   return {
     lists,
     setLists,
@@ -324,6 +282,5 @@ export function usePrtgSelectionLists({
     selectedGroup,
     selectedDevice,
     selectedSensor,
-    loadChannelOptions,
   };
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, ChangeEvent, useRef } from 'react';
 import { Stack, type ComboboxOption } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data'
+import { QueryEditorProps } from '@grafana/data'
 import { DataSource } from '../datasource'
 import {
   DEFAULT_STREAMING_OPTIONS, MyDataSourceOptions, MyQuery, QueryType, manualApiMethods
@@ -52,7 +52,6 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     selectedGroup,
     selectedDevice,
     selectedSensor,
-    loadChannelOptions,
   } = usePrtgSelectionLists({
     datasource,
     query,
@@ -198,8 +197,8 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
     runQueryIfChanged();
   }, [query, onChange, runQueryIfChanged, findSensorObjid, setLists]);  /* ==================================================  ONCHANNELCHANGE ==================================================  */
-  const onChannelChange = useCallback((values: Array<SelectableValue<string>>) => {
-    const selectedChannels = values.map(v => v.value!);
+  const onChannelChange = useCallback((values: Array<ComboboxOption<string>>) => {
+    const selectedChannels = values.map((value) => value.value);
 
     // Update local state
     setChannelQuery(selectedChannels);
@@ -335,12 +334,12 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         groupOptions={groupOptions}
         deviceOptions={deviceOptions}
         sensorOptions={sensorOptions}
+        channelOptions={lists.channels}
         selectedGroup={selectedGroup}
         selectedDevice={selectedDevice}
         selectedSensor={selectedSensor}
         sensorId={sensorId}
         channelQuery={channelQuery}
-        loadChannelOptions={loadChannelOptions}
         onQueryTypeChange={onQueryTypeChange}
         onGroupChange={onGroupChange}
         onDeviceChange={onDeviceChange}

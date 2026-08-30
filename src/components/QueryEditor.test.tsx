@@ -75,14 +75,13 @@ jest.mock('@grafana/ui', () => ({
     const { width, suffix, prefix, invalid, ...domProps } = restProps;
     return <input data-testid={id} value={value} onChange={onChange} onBlur={onBlur} {...domProps} />;
   },
-  AsyncMultiSelect: ({
+  MultiCombobox: ({
     value,
     onChange,
-    loadOptions,
+    options,
     id,
-    defaultOptions,
-    isDisabled,
-    noOptionsMessage,
+    disabled,
+    loading,
     isClearable,
     ...restProps
   }: any) => {
@@ -92,7 +91,8 @@ jest.mock('@grafana/ui', () => ({
       <select
         data-testid={id}
         multiple
-        value={value?.map((v: any) => v.value) || []}
+        value={value?.map((item: any) => typeof item === 'object' ? item.value : item) || []}
+        disabled={disabled}
         onChange={(e) => {
           const selectedValues = Array.from(e.target.selectedOptions).map((option: any) => ({
             label: option.value,
@@ -102,9 +102,9 @@ jest.mock('@grafana/ui', () => ({
         }}
         {...domProps}
       >
-        <option value="channel1">Channel 1</option>
-        <option value="channel2">Channel 2</option>
-        <option value="channel3">Channel 3</option>
+        {options?.map((option: any) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
       </select>
     );
   },
