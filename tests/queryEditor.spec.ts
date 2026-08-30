@@ -239,7 +239,7 @@ test('query editor should render', async ({ panelEditPage, readProvisionedDataSo
   await expect(page.locator(queryEditorFieldIds.group)).toBeVisible();
   await expect(page.locator(queryEditorFieldIds.device)).toBeVisible();
   await expect(page.locator(queryEditorFieldIds.sensor)).toBeVisible();
-  await expect(page.locator(queryEditorFieldIds.channel)).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'First select a sensor' })).toBeVisible();
   await expect(page.locator(queryEditorFieldIds.streamingToggle)).toBeVisible();
 
   // Don't try to refresh the panel as it's timing out
