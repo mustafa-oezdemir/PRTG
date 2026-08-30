@@ -1,18 +1,5 @@
 <div align="center">
 
-# PRTG Grafana Datasource Plugin
-
-Grafana datasource plugin for PRTG Network Monitor. Use PRTG groups, devices, sensors, channels, raw values, text values, and manual API calls directly inside Grafana dashboards.
-
-![Grafana](https://img.shields.io/badge/Grafana-%3E%3D10.4-F46800?style=flat&logo=grafana&logoColor=white&labelColor=555555)
-![Go](https://img.shields.io/badge/Go-1.24%2B-00ADD8?style=flat&logo=go&logoColor=white&labelColor=555555)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat&logo=typescript&logoColor=white&labelColor=555555)
-![React](https://img.shields.io/badge/React-18.2-61DAFB?style=flat&logo=react&logoColor=111111&labelColor=555555)
-![Node](https://img.shields.io/badge/Node-%3E%3D22-339933?style=flat&logo=node.js&logoColor=white&labelColor=555555)
-![License](https://img.shields.io/badge/License-Apache%202.0-97CA00?style=flat&labelColor=555555)
-
-</div>
-
 ## Overview
 
 This repository contains a Grafana datasource plugin for PRTG, allowing users to visualize and analyze PRTG metrics within Grafana.
@@ -21,16 +8,16 @@ The plugin integrates with PRTG and fetches data from PRTG sensors directly into
 
 Plugin metadata read from `maxmarkusprogram-prtg-datasource`:
 
-| Item | Value |
-| --- | --- |
-| Plugin ID | `maxmarkusprogram-prtg-datasource` |
-| Plugin type | Grafana datasource |
-| Package name | `prtg` |
-| Version | `1.0.0` |
-| Grafana dependency | `>=10.4.0` |
-| Backend | Go / Grafana Plugin SDK |
-| Frontend | TypeScript, React, Grafana UI |
-| License | Apache 2.0 |
+| Item               | Value                                |
+| ------------------ | ------------------------------------ |
+| Plugin ID          | `maxmarkusprogram-prtg-datasource` |
+| Plugin type        | Grafana datasource                   |
+| Package name       | `prtg`                             |
+| Version            | `1.0.0`                            |
+| Grafana dependency | `>=10.4.0`                         |
+| Backend            | Go / Grafana Plugin SDK              |
+| Frontend           | TypeScript, React, Grafana UI        |
+| License            | Apache 2.0                           |
 
 ## Features
 
@@ -155,12 +142,12 @@ datasources:
 
 Supported query types:
 
-| Query type | Purpose |
-| --- | --- |
+| Query type  | Purpose                                                           |
+| ----------- | ----------------------------------------------------------------- |
 | `Metrics` | Select group, device, sensor, and channel for time series panels. |
-| `Raw` | Select PRTG properties and filter properties. |
-| `Text` | Display text-based PRTG values. |
-| `Manual` | Call supported manual PRTG API endpoints. |
+| `Raw`     | Select PRTG properties and filter properties.                     |
+| `Text`    | Display text-based PRTG values.                                   |
+| `Manual`  | Call supported manual PRTG API endpoints.                         |
 
 ## Development
 
