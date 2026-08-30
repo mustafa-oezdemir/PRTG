@@ -264,7 +264,7 @@ jobs:
       #     retention-days: 5
 
   publish-report:
-    if: ${{ always() && !cancelled() }}
+    if: ${{ always() && !cancelled() && needs.playwright-tests.result != 'skipped' }}
     permissions:
       contents: write
       id-token: write
