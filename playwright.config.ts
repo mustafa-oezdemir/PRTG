@@ -19,6 +19,7 @@ export default defineConfig<PluginOptions>({
   outputDir: 'test-results',
   use: {
     baseURL: process.env.GRAFANA_URL || 'http://localhost:3001',
+    serviceWorkers: 'block',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
