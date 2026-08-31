@@ -69,5 +69,10 @@ image.png
 todo.md
 e2e/testFoto/
 test-results/
+
 playwright-report/
 tests/
+
+playwright-report/index.html
+
+_docs/

@@ -1,42 +1,20 @@
 <div align="center">
 
-<img src="./src/img/logo.svg" alt="PRTG datasource logo" width="112" />
-
-# PRTG Datasource for Grafana
-
-Bring PRTG Network Monitor metrics, status data, and sensor values into Grafana OSS.
-
-[![CI](https://img.shields.io/github/actions/workflow/status/mustafa-oezdemir/PRTG/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/mustafa-oezdemir/PRTG?style=for-the-badge&logo=github&color=2ea44f)](https://github.com/mustafa-oezdemir/PRTG/releases)
-[![Grafana OSS](https://img.shields.io/badge/Grafana_OSS-%E2%89%A5_12.0-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/oss/grafana/)
-[![License](https://img.shields.io/github/license/mustafa-oezdemir/PRTG?style=for-the-badge&color=blue)](./LICENSE)
-
-![Node.js](https://img.shields.io/badge/%E2%AC%A2_Node.js-%E2%89%A5_22-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
-![npm](https://img.shields.io/badge/%F0%9F%93%A6_npm-11.3.0-CB3837?style=flat-square&logo=npm&logoColor=white)
-![Go](https://img.shields.io/badge/%F0%9F%90%B9_Go-1.25.7-00ADD8?style=flat-square&logo=go&logoColor=white)
-![React](https://img.shields.io/badge/%E2%9A%9B%EF%B8%8F_React-18.2.0-61DAFB?style=flat-square&logo=react&logoColor=101010)
-![TypeScript](https://img.shields.io/badge/%F0%9F%94%B7_TypeScript-5.5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Grafana UI](https://img.shields.io/badge/%F0%9F%8E%A8_Grafana_UI-12.4.5-F46800?style=flat-square&logo=grafana&logoColor=white)
-
-[Features](#-features) · [Quick start](#-quick-start) · [Configuration](#%EF%B8%8F-configuration) · [Development](#-development) · [Contributing](#-contributing)
-
-</div>
-
 ---
 
 ## ✨ Overview
 
 PRTG Datasource is a backend-enabled Grafana plugin that connects Grafana OSS to a PRTG Network Monitor instance. Build dashboards from groups, devices, sensors, and channels without exposing the PRTG API token to the browser.
 
-| Plugin metadata | Value                              |
-| --------------- | ---------------------------------- |
+| Plugin metadata | Value                                |
+| --------------- | ------------------------------------ |
 | 🧩 Plugin ID    | `maxmarkusprogram-prtg-datasource` |
 | 📦 Version      | `1.0.0`                            |
-| 📊 Type         | Backend datasource                 |
-| 🟠 Grafana      | OSS `>= 12.0.0`                    |
-| ⚙️ Backend      | Go + Grafana Plugin SDK `v0.292.0` |
-| 🖥️ Frontend     | React + TypeScript + Grafana UI    |
-| 📄 License      | Apache 2.0                         |
+| 📊 Type         | Backend datasource                   |
+| 🟠 Grafana      | OSS`>= 12.0.0`                     |
+| ⚙️ Backend    | Go + Grafana Plugin SDK`v0.292.0`  |
+| 🖥️ Frontend   | React + TypeScript + Grafana UI      |
+| 📄 License      | Apache 2.0                           |
 
 ## 🚀 Features
 
@@ -74,8 +52,8 @@ The authoritative versions are defined in [`.nvmrc`](./.nvmrc), [`package.json`]
 <details>
 <summary><strong>🧱 Core dependency versions</strong></summary>
 
-| Dependency                |    Version |
-| ------------------------- | ---------: |
+| Dependency                |      Version |
+| ------------------------- | -----------: |
 | React / React DOM         |   `18.2.0` |
 | TypeScript                |    `5.5.4` |
 | Grafana Data              |   `12.4.5` |
@@ -145,12 +123,12 @@ docker compose down
 
 In Grafana, open **Connections → Data sources → PRTG** and enter:
 
-| Setting        | Required | Example            | Description                                               |
-| -------------- | :------: | ------------------ | --------------------------------------------------------- |
-| 🌐 PRTG server |    ✅    | `prtg.example.com` | Host name without `https://`                              |
-| 🔑 API token   |    ✅    | `••••••••`         | Stored in `secureJsonData`; never returned to the browser |
-| ⏲️ Cache time  |    —     | `6000`             | Cache duration in seconds; minimum accepted value is `10` |
-| 🌍 Timezone    |    —     | `Europe/Berlin`    | Timezone used to normalize PRTG timestamps                |
+| Setting         | Required | Example              | Description                                                |
+| --------------- | :------: | -------------------- | ---------------------------------------------------------- |
+| 🌐 PRTG server  |    ✅    | `prtg.example.com` | Host name without`https://`                              |
+| 🔑 API token    |    ✅    | `••••••••` | Stored in`secureJsonData`; never returned to the browser |
+| ⏲️ Cache time |    —    | `6000`             | Cache duration in seconds; minimum accepted value is`10` |
+| 🌍 Timezone     |    —    | `Europe/Berlin`    | Timezone used to normalize PRTG timestamps                 |
 
 Select **Save & test** to run the backend health check.
 
@@ -180,12 +158,12 @@ For deployments, inject the token through your secret manager instead of committ
 
 ## 🔎 Query modes
 
-| Mode           | Best for                                   | Inputs                                         |
-| -------------- | ------------------------------------------ | ---------------------------------------------- |
-| 📈 **Metrics** | Time series, stat, gauge, and alert panels | Group → device → sensor → one or more channels |
-| 🧾 **Raw**     | PRTG object metadata and filtered values   | Object selection, property, filter property    |
-| 💬 **Text**    | Status messages and other text values      | Object selection and text property             |
-| 🛠️ **Manual**  | Supported PRTG API operations              | API method and object ID                       |
+| Mode                 | Best for                                   | Inputs                                            |
+| -------------------- | ------------------------------------------ | ------------------------------------------------- |
+| 📈**Metrics**  | Time series, stat, gauge, and alert panels | Group → device → sensor → one or more channels |
+| 🧾**Raw**      | PRTG object metadata and filtered values   | Object selection, property, filter property       |
+| 💬**Text**     | Status messages and other text values      | Object selection and text property                |
+| 🛠️**Manual** | Supported PRTG API operations              | API method and object ID                          |
 
 ### Create your first panel
 
@@ -220,10 +198,10 @@ For deployments, inject the token through your secret manager instead of committ
 
 ## 🧑‍💻 Development
 
-| Command             | Purpose                                        |
-| ------------------- | ---------------------------------------------- |
+| Command               | Purpose                                        |
+| --------------------- | ---------------------------------------------- |
 | `npm run dev`       | Build the frontend in watch mode               |
-| `npm run build`     | Create a production frontend build in `dist/`  |
+| `npm run build`     | Create a production frontend build in`dist/` |
 | `npm run typecheck` | Run TypeScript checks without emitting files   |
 | `npm run lint`      | Run ESLint                                     |
 | `npm run lint:fix`  | Fix lint and formatting issues where possible  |
@@ -317,10 +295,3 @@ Copyright © Mustafa Özdemir. Licensed under the [Apache License 2.0](./LICENSE
 ---
 
 <div align="center">
-
-Made with ❤️ for the Grafana OSS and PRTG communities.
-
-[![GitHub stars](https://img.shields.io/github/stars/mustafa-oezdemir/PRTG?style=social)](https://github.com/mustafa-oezdemir/PRTG/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/mustafa-oezdemir/PRTG?style=social)](https://github.com/mustafa-oezdemir/PRTG/forks)
-
-</div>
