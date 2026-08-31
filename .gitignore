@@ -63,8 +63,7 @@ Thumbs.db
 *.bak
 *.backup
 *~
-maxmarkusprogram-prtg-datasource/todo_.md
-maxmarkusprogram-prtg-datasource/todo.md
+
 image.png
 todo.md
 e2e/testFoto/
@@ -73,6 +72,5 @@ test-results/
 playwright-report/
 tests/
 
-playwright-report/index.html
-
 _docs/
+
