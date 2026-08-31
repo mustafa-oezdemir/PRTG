@@ -12,7 +12,7 @@ test('renders the PRTG query editor', async ({ panelEditPage }) => {
   await expect(query.locator('#query-editor-group')).toBeVisible();
   await expect(query.locator('#query-editor-device')).toBeVisible();
   await expect(query.locator('#query-editor-sensor')).toBeVisible();
-  await expect(query.locator('#query-editor-channel')).toBeVisible();
+  await expect(query.getByText('Channel', { exact: true })).toBeVisible();
   await expect(query.locator('#query-editor-is-stream')).toBeVisible();
 });
 
