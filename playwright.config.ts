@@ -10,7 +10,7 @@ export default defineConfig<PluginOptions>({
   fullyParallel: false,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
-  workers: isCI ? 2 : undefined,
+  workers: isCI ? 1 : undefined,
   reporter: isCI ? [['line'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
   timeout: 60 * 1000,
   expect: {
