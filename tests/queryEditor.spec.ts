@@ -12,24 +12,39 @@ test('renders the PRTG query editor', async ({
 
   const query = panelEditPage.getQueryEditorRow('A');
 
-  await expect(query.getByText('Query Type', { exact: true })).toBeVisible();
-  await expect(query.getByText('Group', { exact: true })).toBeVisible();
-  await expect(query.getByText('Device', { exact: true })).toBeVisible();
-  await expect(query.getByText('Sensor', { exact: true })).toBeVisible();
-  await expect(query.getByText('Channel', { exact: true })).toBeVisible();
-  await expect(query.getByText('Enable Streaming', { exact: true })).toBeVisible();
+  await expect(
+    query.getByText('Query Type', { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    query.getByText('Group', { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    query.getByText('Device', { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    query.getByText('Sensor', { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    query.getByText('Channel', { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    query.getByText('Enable Streaming', { exact: true })
+  ).toBeVisible();
 });
 
 test('loads group options from a mocked PRTG resource', async ({
+  page,
   panelEditPage,
   readProvisionedDataSource,
 }) => {
   const dataSource = await readProvisionedDataSource({
     fileName: 'datasources.yml',
   });
-
-  const editorPage = panelEditPage.ctx.page;
-  const context = editorPage.context();
 
   const groupsResponse = {
     prtgversion: 'test',
@@ -46,80 +61,62 @@ test('loads group options from a mocked PRTG resource', async ({
     ],
   };
 
-  /*
-   * Grafana resource endpoint:
+  /**
+   * IMPORTANT:
    *
-   * /api/datasources/uid/<uid>/resources/groups
+   * usePrtgSelectionLists() calls datasource.getGroups()
+   * immediately when the QueryEditor mounts.
    *
-   * Query string eklenmesi ihtimalini de destekliyoruz.
-   */
-  const groupsResource =
-    /\/api\/datasources\/uid\/[^/]+\/resources\/groups(?:\?.*)?$/;
-
-  /*
-   * Datasource'un gerçekten groups resource'una istek
-   * gönderdiğini takip ediyoruz.
+   * Therefore the mock must be registered BEFORE selecting
+   * the datasource.
    *
-   * Bu, CI ortamındaki race condition'ı engeller.
+   * Do not use context.route() here. @grafana/plugin-e2e
+   * already provides the correct resource mocking helper.
    */
-  let resolveGroupsRequest!: () => void;
+  await panelEditPage.mockResourceResponse(
+    'groups',
+    groupsResponse
+  );
 
-  const groupsRequestHandled = new Promise<void>((resolve) => {
-    resolveGroupsRequest = resolve;
-  });
-
-  /*
-   * Grafana bazı sürümlerde query editor'ı farklı bir page
-   * üzerinden açabildiği için mock'u browser context üzerine
-   * bağlıyoruz.
-   */
-  await context.route(groupsResource, async (route) => {
-    await route.fulfill({
-      status: 200,
-      json: groupsResponse,
-    });
-
-    resolveGroupsRequest();
-  });
-
-  /*
-   * Datasource seçildiğinde QueryEditor mount olur ve
-   * getGroups() çağrısının yapılması beklenir.
+  /**
+   * Selecting the datasource mounts QueryEditor.
+   *
+   * QueryEditor -> usePrtgSelectionLists()
+   *             -> datasource.getGroups()
+   *             -> mocked /resources/groups
    */
   await panelEditPage.datasource.set(dataSource.name);
 
-  /*
-   * Combobox ile işlem yapmadan önce mock endpoint'in
-   * gerçekten çağrıldığından emin oluyoruz.
-   */
-  await groupsRequestHandled;
-
   const query = panelEditPage.getQueryEditorRow('A');
 
-  const groupField = query.getByTestId('query-editor-group-field');
+  const groupField = query.getByTestId(
+    'query-editor-group-field'
+  );
 
   await expect(groupField).toBeVisible();
 
   const groupCombobox = groupField.getByRole('combobox');
 
   await expect(groupCombobox).toBeVisible();
+  await expect(groupCombobox).toBeEnabled();
 
-  /*
-   * Select'i aç.
+  /**
+   * Open the dropdown.
    */
   await groupCombobox.click();
 
-  /*
-   * API cevabının React state'e aktarılması async olabilir.
-   * expect(...).toBeVisible() Playwright'in auto-wait
-   * mekanizmasını kullanır.
+  /**
+   * Combobox options are rendered in a portal, therefore
+   * search from the page instead of inside groupField.
    */
-  const productionOption = editorPage.getByRole('option', {
+  const productionOption = page.getByRole('option', {
     name: 'Production',
     exact: true,
   });
 
-  await expect(productionOption).toBeVisible();
+  await expect(productionOption).toBeVisible({
+    timeout: 10000,
+  });
 
   await productionOption.click();
 
@@ -139,18 +136,30 @@ test('shows text query options when Text mode is selected', async ({
 
   const query = panelEditPage.getQueryEditorRow('A');
 
-  await query.locator('#query-editor-queryType').click();
+  const queryTypeCombobox = query.locator(
+    '#query-editor-queryType'
+  );
 
-  await page
-    .getByRole('option', {
-      name: 'Text',
-      exact: true,
-    })
-    .click();
+  await expect(queryTypeCombobox).toBeVisible();
 
-  await expect(query.locator('#query-editor-property')).toBeVisible();
+  await queryTypeCombobox.click();
 
-  await expect(query.locator('#query-editor-filterProperty')).toBeVisible();
+  const textOption = page.getByRole('option', {
+    name: 'Text',
+    exact: true,
+  });
+
+  await expect(textOption).toBeVisible();
+
+  await textOption.click();
+
+  await expect(
+    query.locator('#query-editor-property')
+  ).toBeVisible();
+
+  await expect(
+    query.locator('#query-editor-filterProperty')
+  ).toBeVisible();
 });
 
 test('shows the update interval when streaming is enabled', async ({
@@ -170,7 +179,10 @@ test('shows the update interval when streaming is enabled', async ({
     'query-editor-streaming-field'
   );
 
-  const streamingSwitch = components.switch.within(streamingField);
+  await expect(streamingField).toBeVisible();
+
+  const streamingSwitch =
+    components.switch.within(streamingField);
 
   await streamingSwitch.check();
 
