@@ -20,9 +20,16 @@ export function StreamingOptions({
   return (
     <FieldSet label="Streaming Options">
       <Stack direction="row" gap={1}>
-        <InlineField label="Enable Streaming" labelWidth={16}>
-          <InlineSwitch id="query-editor-is-stream" value={query.isStreaming || false} onChange={onStreamingToggle} />
-        </InlineField>
+        <div data-testid="query-editor-streaming-field">
+          <InlineField label="Enable Streaming" labelWidth={16}>
+            <InlineSwitch
+              id="query-editor-is-stream"
+              label="Enable Streaming"
+              value={query.isStreaming || false}
+              onChange={onStreamingToggle}
+            />
+          </InlineField>
+        </div>
         {query.isStreaming && (
           <InlineField label="Update Interval (ms)" labelWidth={20} tooltip="Refresh interval in milliseconds">
             <Input

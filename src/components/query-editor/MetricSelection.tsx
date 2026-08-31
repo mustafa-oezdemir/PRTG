@@ -56,20 +56,22 @@ export function MetricSelection({
           />
         </InlineField>
 
-        <InlineField label="Group" labelWidth={20} grow>
-          <Combobox
-            id="query-editor-group"
-            loading={isLoading}
-            options={groupOptions}
-            value={selectedGroup}
-            onChange={onGroupChange}
-            width={47}
-            createCustomValue={true}
-            isClearable={true}
-            invalid={!query.queryType}
-            placeholder="Select Group or type '*'"
-          />
-        </InlineField>
+        <div data-testid="query-editor-group-field">
+          <InlineField label="Group" labelWidth={20} grow>
+            <Combobox
+              id="query-editor-group"
+              loading={isLoading}
+              options={groupOptions}
+              value={selectedGroup}
+              onChange={onGroupChange}
+              width={47}
+              createCustomValue={true}
+              isClearable={true}
+              invalid={!query.queryType}
+              placeholder="Select Group or type '*'"
+            />
+          </InlineField>
+        </div>
 
         <InlineField label="Device" labelWidth={20} grow>
           <Combobox
