@@ -35,7 +35,7 @@ jobs:
 
   playwright-tests:
     needs: resolve-versions
-    timeout-minutes: 45
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -44,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v5
@@ -76,7 +78,7 @@ jobs:
       - name: Start Grafana
         run: |
           docker compose pull
-          ANONYMOUS_AUTH_ENABLED=true DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+          ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main
@@ -86,6 +88,9 @@ jobs:
       - name: Run Playwright tests
         id: run-tests
         run: npm run e2e
+        env:
+          GRAFANA_ADMIN_USER: admin
+          GRAFANA_ADMIN_PASSWORD: admin
 
       - name: Upload Playwright diagnostics
         if: ${{ failure() && !cancelled() }}

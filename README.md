@@ -6,10 +6,10 @@
 
 Bring PRTG Network Monitor metrics, status data, and sensor values into Grafana OSS.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/1DeliDolu/PRTG/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/1DeliDolu/PRTG/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/1DeliDolu/PRTG?style=for-the-badge&logo=github&color=2ea44f)](https://github.com/1DeliDolu/PRTG/releases)
-[![Grafana OSS](https://img.shields.io/badge/Grafana_OSS-%E2%89%A5_11.0-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/oss/grafana/)
-[![License](https://img.shields.io/github/license/1DeliDolu/PRTG?style=for-the-badge&color=blue)](./LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/mustafa-oezdemir/PRTG/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/mustafa-oezdemir/PRTG?style=for-the-badge&logo=github&color=2ea44f)](https://github.com/mustafa-oezdemir/PRTG/releases)
+[![Grafana OSS](https://img.shields.io/badge/Grafana_OSS-%E2%89%A5_12.0-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/oss/grafana/)
+[![License](https://img.shields.io/github/license/mustafa-oezdemir/PRTG?style=for-the-badge&color=blue)](./LICENSE)
 
 ![Node.js](https://img.shields.io/badge/%E2%AC%A2_Node.js-%E2%89%A5_22-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
 ![npm](https://img.shields.io/badge/%F0%9F%93%A6_npm-11.3.0-CB3837?style=flat-square&logo=npm&logoColor=white)
@@ -33,7 +33,7 @@ PRTG Datasource is a backend-enabled Grafana plugin that connects Grafana OSS to
 | 🧩 Plugin ID    | `maxmarkusprogram-prtg-datasource` |
 | 📦 Version      | `1.0.0`                            |
 | 📊 Type         | Backend datasource                 |
-| 🟠 Grafana      | OSS `>= 11.0.0`                    |
+| 🟠 Grafana      | OSS `>= 12.0.0`                    |
 | ⚙️ Backend      | Go + Grafana Plugin SDK `v0.292.0` |
 | 🖥️ Frontend     | React + TypeScript + Grafana UI    |
 | 📄 License      | Apache 2.0                         |
@@ -54,12 +54,12 @@ PRTG Datasource is a backend-enabled Grafana plugin that connects Grafana OSS to
 
 ### Run the plugin
 
-![Grafana](https://img.shields.io/badge/%F0%9F%9F%A0_Grafana_OSS-%E2%89%A5_11.0-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Grafana](https://img.shields.io/badge/%F0%9F%9F%A0_Grafana_OSS-%E2%89%A5_12.0-F46800?style=for-the-badge&logo=grafana&logoColor=white)
 ![PRTG](https://img.shields.io/badge/%F0%9F%93%A1_PRTG-API_access-0096D6?style=for-the-badge)
 
 - A reachable PRTG Network Monitor server.
 - A PRTG API token with access to the objects you want to query.
-- Grafana OSS `11.0.0` or newer.
+- Grafana OSS `12.0.0` or newer.
 
 ### Build and develop
 
@@ -96,7 +96,7 @@ Versions in this table reflect the current lockfiles. Declared compatible ranges
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/1DeliDolu/PRTG.git
+git clone https://github.com/mustafa-oezdemir/PRTG.git
 cd PRTG
 npm ci
 ```
@@ -320,7 +320,7 @@ Copyright © Mustafa Özdemir. Licensed under the [Apache License 2.0](./LICENSE
 
 Made with ❤️ for the Grafana OSS and PRTG communities.
 
-[![GitHub stars](https://img.shields.io/github/stars/1DeliDolu/PRTG?style=social)](https://github.com/1DeliDolu/PRTG/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/1DeliDolu/PRTG?style=social)](https://github.com/1DeliDolu/PRTG/forks)
+[![GitHub stars](https://img.shields.io/github/stars/mustafa-oezdemir/PRTG?style=social)](https://github.com/mustafa-oezdemir/PRTG/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/mustafa-oezdemir/PRTG?style=social)](https://github.com/mustafa-oezdemir/PRTG/forks)
 
 </div>

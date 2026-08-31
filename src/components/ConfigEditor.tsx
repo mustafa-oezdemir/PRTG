@@ -115,7 +115,13 @@ export function ConfigEditor(props: Props) {
         />
       </InlineField>
       <InlineField label="Timezone" labelWidth={14} interactive tooltip={'Select the timezone'} required>
-        <Combobox options={timezoneOptions} value={selectedTimeZone} onChange={onTimezoneChange} width={60} />
+        <Combobox
+          id="config-editor-timezone"
+          options={timezoneOptions}
+          value={selectedTimeZone}
+          onChange={onTimezoneChange}
+          width={60}
+        />
       </InlineField>
     </div>
   );

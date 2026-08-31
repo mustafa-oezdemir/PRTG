@@ -4,8 +4,8 @@
 
 How to report vulnerabilities in the PRTG datasource for Grafana safely and privately.
 
-[![Security policy](https://img.shields.io/badge/Security-Responsible_disclosure-2ea44f?style=for-the-badge&logo=github)](https://github.com/1DeliDolu/PRTG/security)
-[![Supported release](https://img.shields.io/badge/Supported-1.0.x-blue?style=for-the-badge)](https://github.com/1DeliDolu/PRTG/releases)
+[![Security policy](https://img.shields.io/badge/Security-Responsible_disclosure-2ea44f?style=for-the-badge&logo=github)](https://github.com/mustafa-oezdemir/PRTG/security)
+[![Supported release](https://img.shields.io/badge/Supported-1.0.x-blue?style=for-the-badge)](https://github.com/mustafa-oezdemir/PRTG/releases)
 
 </div>
 
@@ -27,7 +27,7 @@ Users should upgrade to the newest stable release before reporting an issue that
 
 Use one of these private channels:
 
-1. **Preferred:** [Open a private GitHub security advisory](https://github.com/1DeliDolu/PRTG/security/advisories/new).
+1. **Preferred:** [Open a private GitHub security advisory](https://github.com/mustafa-oezdemir/PRTG/security/advisories/new).
 2. **Fallback:** Email [mustafa.ozdemir1408@gmail.com](mailto:mustafa.ozdemir1408@gmail.com?subject=%5BSECURITY%5D%20PRTG%20Datasource).
 
 Include enough information to reproduce and assess the issue:
@@ -95,4 +95,4 @@ This project currently does not operate a paid bug bounty program.
 - Run a supported Grafana OSS version and keep the plugin updated.
 - Verify release checksums and signatures before production deployment.
 
-For general bugs and feature requests that do not have security impact, use [GitHub Issues](https://github.com/1DeliDolu/PRTG/issues).
+For general bugs and feature requests that do not have security impact, use [GitHub Issues](https://github.com/mustafa-oezdemir/PRTG/issues).

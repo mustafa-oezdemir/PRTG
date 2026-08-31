@@ -16,6 +16,7 @@ jobs:
   build:
     name: Build, lint and unit tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     outputs:
@@ -30,7 +31,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version-file: .nvmrc
           cache: 'npm'
 
       - name: Install dependencies
@@ -159,8 +160,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      id-token: write
-      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -205,7 +204,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version-file: .nvmrc
           cache: 'npm'
 
       - name: Install dev dependencies
@@ -214,7 +213,7 @@ jobs:
       - name: Start Grafana
         run: |
           docker compose pull
-          ANONYMOUS_AUTH_ENABLED=true DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+          ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main # zizmor: ignore[unpinned-uses] provided by grafana
@@ -228,14 +227,13 @@ jobs:
         id: run-tests
         run: npm run e2e
         env:
-          GRAFANA_USERNAME: admin
-          GRAFANA_PASSWORD: admin
+          GRAFANA_ADMIN_USER: admin
+          GRAFANA_ADMIN_PASSWORD: admin
 
       - name: Upload e2e test summary
         uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main # zizmor: ignore[unpinned-uses] provided by grafana
         if: ${{ always() && !cancelled() }}
         with:
-          upload-report: false
           github-token: ${{ github.token }}
           test-outcome: ${{ steps.run-tests.outcome }}
 
@@ -264,10 +262,9 @@ jobs:
       #     retention-days: 5
 
   publish-report:
-    if: ${{ always() && needs.playwright-tests.result != 'skipped' }}
+    if: ${{ always() && !cancelled() && needs.playwright-tests.result != 'skipped' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) }}
     permissions:
       contents: write
-      id-token: write
       pull-requests: write
     needs: [playwright-tests]
     runs-on: ubuntu-latest

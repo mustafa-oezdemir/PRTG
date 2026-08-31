@@ -4,22 +4,22 @@
 
 ## 🧰 Prerequisites
 
-| Tool    | Required version | Source of truth                                     |
-| ------- | ---------------: | --------------------------------------------------- |
-| Node.js |        `>= 22` | [`.nvmrc`](./.nvmrc) and `package.json #engines` |
-| npm     |       `11.3.0` | `package.json#packageManager`                     |
-| Go      |       `1.25.7` | [`go.mod`](./go.mod)                               |
-| Mage    |       `1.17.2` | `go.mod` and CI workflows                         |
-| Docker  |   Current stable | Docker Compose v2 is required                       |
+| Tool    | Required version | Source of truth                                  |
+| ------- | ---------------: | ------------------------------------------------ |
+| Node.js |          `>= 22` | [`.nvmrc`](./.nvmrc) and `package.json #engines` |
+| npm     |         `11.3.0` | `package.json#packageManager`                    |
+| Go      |         `1.25.7` | [`go.mod`](./go.mod)                             |
+| Mage    |         `1.17.2` | `go.mod` and CI workflows                        |
+| Docker  |   Current stable | Docker Compose v2 is required                    |
 
-The plugin targets Grafana OSS `>= 11.0.0`. CI tests the supported Grafana OSS matrix using the official `grafana/grafana` image.
+The plugin targets Grafana OSS `>= 12.0.0`. CI tests the supported Grafana OSS matrix using the official `grafana/grafana` image.
 
 ## ⚡ Setup
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/1DeliDolu/PRTG.git
+git clone https://github.com/mustafa-oezdemir/PRTG.git
 cd PRTG
 ```
 

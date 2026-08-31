@@ -20,7 +20,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - Restructured the repository into top-level frontend, backend, provisioning, and test directories.
-- Updated the supported runtime to Grafana OSS `>= 11.0.0`, Node.js `>= 22`, Go `1.25.7`, and Grafana packages `12.x`.
+- Updated the supported runtime to Grafana OSS `>= 12.0.0`, Node.js `>= 22`, Go `1.25.7`, and Grafana packages `12.x`.
 - Migrated selection controls to the current Grafana UI Combobox APIs.
 - Updated CI and scheduled E2E workflows to test official `grafana/grafana` OSS images.
 - Updated release signing to use `GRAFANA_ACCESS_POLICY_TOKEN`.
@@ -49,5 +49,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Go backend binaries and React/TypeScript query editor.
 - Apache 2.0 license and initial project documentation.
 
-[Unreleased]: https://github.com/1DeliDolu/PRTG/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/1DeliDolu/PRTG/releases/tag/v1.0.0
+[Unreleased]: https://github.com/mustafa-oezdemir/PRTG/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/mustafa-oezdemir/PRTG/releases/tag/v1.0.0

@@ -119,7 +119,6 @@ jobs:
           cd "${RELEASE_DIR}"
           zip -r "../${ARCHIVE}" "${PLUGIN_ID}"
           cd ..
-          sha1sum "${ARCHIVE}" > "${ARCHIVE}.sha1"
           sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
 
       - name: Verify archive structure and permissions
@@ -187,6 +186,5 @@ jobs:
 
           gh release upload "${RELEASE_TAG}" \
             "${ARCHIVE}" \
-            "${ARCHIVE}.sha1" \
             "${ARCHIVE}.sha256" \
             --clobber
