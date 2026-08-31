@@ -13,8 +13,9 @@ test('renders the PRTG query editor', async ({ panelEditPage, readProvisionedDat
   await expect(query.getByText('Enable Streaming', { exact: true })).toBeVisible();
 });
 
-test('loads group options from a mocked PRTG resource', async ({ page, panelEditPage, readProvisionedDataSource }) => {
+test('loads group options from a mocked PRTG resource', async ({ panelEditPage, readProvisionedDataSource }) => {
   const dataSource = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  const editorPage = panelEditPage.ctx.page;
   const groupsResponse = {
     prtgversion: 'test',
     treesize: 2,
@@ -23,9 +24,8 @@ test('loads group options from a mocked PRTG resource', async ({ page, panelEdit
       { group: 'Development', objid: 2 },
     ],
   };
-  await panelEditPage.mockResourceResponse('groups', groupsResponse);
-  // Grafana 13.2 can bypass the plugin-e2e resource glob for UID-based requests.
-  await page.route('**/api/datasources/uid/*/resources/groups', async (route) => {
+  // Bind the mock to the editor context because Grafana 13.2 can load it on a different page.
+  await editorPage.context().route(/\/api\/datasources\/uid\/[^/]+\/resources\/groups$/, async (route) => {
     await route.fulfill({ json: groupsResponse });
   });
   await panelEditPage.datasource.set(dataSource.name);
@@ -33,7 +33,7 @@ test('loads group options from a mocked PRTG resource', async ({ page, panelEdit
   const groupField = panelEditPage.getQueryEditorRow('A').getByTestId('query-editor-group-field');
   const groupCombobox = groupField.getByRole('combobox');
   await groupCombobox.click();
-  await page.getByRole('option', { name: 'Production', exact: true }).click();
+  await editorPage.getByRole('option', { name: 'Production', exact: true }).click();
 
   await expect(groupCombobox).toHaveValue('Production');
 });
