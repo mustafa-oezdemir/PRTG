@@ -1,129 +1,245 @@
-## Getting started
+<div align="center">
 
-### Backend
+---
 
-1. Update [Grafana plugin SDK for Go](https://grafana.com/developers/plugin-tools/key-concepts/backend-plugins/grafana-plugin-sdk-for-go) dependency to the latest minor version:
+## 🧰 Prerequisites
 
-   ```bash
-   go get -u github.com/grafana/grafana-plugin-sdk-go
-   go mod tidy
-   ```
-2. Build backend plugin binaries for Linux, Windows and Darwin:
+| Tool    | Required version | Source of truth                                     |
+| ------- | ---------------: | --------------------------------------------------- |
+| Node.js |        `>= 22` | [`.nvmrc`](./.nvmrc) and `package.json #engines` |
+| npm     |       `11.3.0` | `package.json#packageManager`                     |
+| Go      |       `1.25.7` | [`go.mod`](./go.mod)                               |
+| Mage    |       `1.17.2` | `go.mod` and CI workflows                         |
+| Docker  |   Current stable | Docker Compose v2 is required                       |
 
-   ```bash
-   mage -v
-   ```
-3. List all available Mage targets for additional commands:
+The plugin targets Grafana OSS `>= 11.0.0`. CI tests the supported Grafana OSS matrix using the official `grafana/grafana` image.
 
-   ```bash
-   mage -l
-   ```
+## ⚡ Setup
 
-### Frontend
+### 1. Clone the repository
 
-1. Install dependencies
+```bash
+git clone https://github.com/1DeliDolu/PRTG.git
+cd PRTG
+```
 
-   ```bash
-   npm install
-   ```
-2. Build plugin in development mode and run in watch mode
+### 2. Select the Node.js version
 
-   ```bash
-   npm run dev
-   ```
-3. Build plugin in production mode
+```bash
+nvm use
+node --version
+npm --version
+```
 
-   ```bash
-   npm run build
-   ```
-4. Run the tests (using Jest)
+If your version manager does not read `.nvmrc`, install Node.js 22 manually.
 
-   ```bash
-   # Runs the tests and watches for changes, requires git init first
-   npm run test
+### 3. Install dependencies
 
-   # Exits after running all the tests
-   npm run test:ci
-   ```
-5. Spin up a Grafana instance and run the plugin inside it (using Docker)
+```bash
+npm ci
+go mod download
+go install github.com/magefile/mage@v1.17.2
+```
 
-   ```bash
-   npm run server
-   ```
-6. Run the E2E tests (using Cypress)
+Use `npm ci` for reproducible installs. Use `npm install` only when intentionally changing `package.json` or `package-lock.json`.
 
-   ```bash
-   # Spins up a Grafana instance first that we tests against
-   npm run server
+### 4. Configure the local environment
 
-   # Starts the tests
-   npm run e2e
-   ```
-7. Run the linter
+Create `.env` in the repository root:
 
-   ```bash
-   npm run lint
+```dotenv
+PRTG_PATH=prtg.example.com
+PRTG_API=replace-with-your-prtg-api-token
+PRTG_CACHE_TIME=6000
+TIMEZONE=Europe/Berlin
+GRAFANA_USERNAME=admin
+GRAFANA_PASSWORD=admin
+```
 
-   # or
+`PRTG_PATH` is the host name without `https://`. Never commit `.env`, API tokens, signing credentials, production URLs, or generated authentication state.
 
-   npm run lint:fix
-   ```
+## 🔄 Local development
 
-# Distributing your plugin
+### Build once and start Grafana
 
-When distributing a Grafana plugin either within the community or privately the plugin must be signed so the Grafana application can verify its authenticity. This can be done with the `@grafana/sign-plugin` package.
+The Docker container runs Linux, so build the Linux backend binary before starting it:
 
-_Note: It's not necessary to sign a plugin during development. The docker development environment that is scaffolded with `@grafana/create-plugin` caters for running the plugin without a signature._
+```bash
+npm run build
+mage -v build:linux
+docker compose up --build -d
+```
 
-## Initial steps
+Open [http://localhost:3001](http://localhost:3001). Port `2345` is reserved for Delve debugging.
 
-Before signing a plugin please read the Grafana [plugin publishing and signing criteria](https://grafana.com/legal/plugins/#plugin-publishing-and-signing-criteria) documentation carefully.
+```bash
+# Follow Grafana and plugin logs
+docker compose logs -f grafana
 
-`@grafana/create-plugin` has added the necessary commands and workflows to make signing and distributing a plugin via the grafana plugins catalog as straightforward as possible.
+# Inspect container status
+docker compose ps
 
-Before signing a plugin for the first time please consult the Grafana [plugin signature levels](https://grafana.com/legal/plugins/#what-are-the-different-classifications-of-plugins) documentation to understand the differences between the types of signature level.
+# Stop and remove local containers
+docker compose down
+```
 
-1. Create a [Grafana Cloud account](https://grafana.com/signup).
-2. Make sure that the first part of the plugin ID matches the slug of your Grafana Cloud account.
-   - _You can find the plugin ID in the `plugin.json` file inside your plugin directory. For example, if your account slug is `acmecorp`, you need to prefix the plugin ID with `acmecorp-`._
-3. Create a Grafana Cloud API key with the `PluginPublisher` role.
-4. Keep a record of this API key as it will be required for signing a plugin
+### Frontend watch mode
 
-## Signing a plugin
+```bash
+npm run dev
+```
 
-### Using Github actions release workflow
+Webpack watches `src/` and writes the updated frontend bundle to `dist/`, which is mounted into the Grafana container.
 
-If the plugin is using the github actions supplied with `@grafana/create-plugin` signing a plugin is included out of the box. The [release workflow](./.github/workflows/release.yml) can prepare everything to make submitting your plugin to Grafana as easy as possible. Before being able to sign the plugin however a secret needs adding to the Github repository.
+### Backend development
 
-1. Please navigate to "settings > secrets > actions" within your repo to create secrets.
-2. Click "New repository secret"
-3. Name the secret "GRAFANA_API_KEY"
-4. Paste your Grafana Cloud API key in the Secret field
-5. Click "Add secret"
+Rebuild the backend after changes under `pkg/`:
 
-#### Push a version tag
+```bash
+# Current operating system
+mage -v build:backend
 
-To trigger the workflow we need to push a version tag to github. This can be achieved with the following steps:
+# Linux binary used by Docker
+mage -v build:linux
 
-1. Run `npm version <major|minor|patch>`
-2. Run `git push origin main --follow-tags`
+# Every supported platform
+mage -v buildAll
+```
 
-## Projet Path
+Restart Grafana after rebuilding the backend:
 
-cd /mnt/d/Praxis/PRTG/maxmarkusprogram-prtg-datasource
+```bash
+docker compose restart grafana
+```
 
-### Run the following commands to get started:
+List all available Mage targets with `mage -l`.
 
-    *`cd ./maxmarkusprogram-prtg-datasource`
-    * `npm install` to install frontend dependencies.
-    * `npm exec playwright install chromium` to install e2e test dependencies.
-    * `npm run dev` to build (and watch) the plugin frontend code.
-    * `mage -v build:linux` to build the plugin backend code. Rerun this command every time you edit your backend files.
-    * `docker compose up` to start a grafana development server.
-    * Open http://localhost:3000 in your browser to create a dashboard to begin developing your plugin.
+## 🗂️ Project layout
 
+```text
+.
+├── .config/          # Webpack and Docker development configuration
+├── .github/          # CI, E2E, compatibility, and release workflows
+├── e2e/              # Plugin E2E helpers
+├── pkg/              # Go backend
+├── provisioning/     # Local Grafana datasource and dashboards
+├── src/              # React and TypeScript frontend
+├── tests/            # Playwright test suites
+├── go.mod             # Go toolchain and dependencies
+└── package.json       # Frontend dependencies and npm scripts
+```
 
-## Rebuild & Restart Grafana
+## 🧪 Testing
 
-`npm run build
-sudo systemctl restart grafana-server`
+### Frontend quality checks
+
+```bash
+npm run typecheck
+npm run lint
+npm run test:ci
+npm run build
+```
+
+During active Jest development, use `npm test` for watch mode. Use `npm run lint:fix` to apply supported ESLint and Prettier fixes.
+
+### Backend checks
+
+```bash
+mage -v format
+mage -v lint
+mage -v coverage
+```
+
+### Playwright E2E
+
+Install Chromium once, build the plugin, and start Grafana:
+
+```bash
+npm exec playwright install chromium
+npm run build
+mage -v build:linux
+docker compose up --build -d
+npm run e2e
+```
+
+Playwright output is written to `playwright-report/` and `test-results/`. These directories are generated artifacts and must not be committed.
+
+### Full pre-push check
+
+```bash
+npm run typecheck
+npm run lint
+npm run test:ci
+npm run build
+mage -v coverage
+mage -v buildAll
+```
+
+## 🧩 Dependency updates
+
+Update dependencies deliberately and keep the lockfiles synchronized.
+
+```bash
+# Inspect frontend updates
+npm outdated
+
+# Update the Grafana Plugin SDK within the intended compatibility range
+go get github.com/grafana/grafana-plugin-sdk-go@latest
+go mod tidy
+```
+
+After any Grafana package or SDK update, run the full pre-push check and the Playwright suite. Avoid unrelated dependency upgrades in feature pull requests.
+
+## ✅ Pull request checklist
+
+- Keep each pull request focused on one change.
+- Add or update Jest, Go, or Playwright tests as appropriate.
+- Do not commit `.env`, PRTG credentials, Grafana tokens, reports, or screenshots containing secrets.
+- Update [`README.md`](./README.md) when user-facing behavior changes.
+- Add a concise entry under **Unreleased** in [`CHANGELOG.md`](./CHANGELOG.md).
+- Confirm frontend and backend validation passes locally.
+- Include screenshots for visible UI changes.
+
+By participating, you agree to follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Security findings must follow the private process in [`SECURITY.md`](./SECURITY.md), not a public issue.
+
+## 📦 Release process
+
+### Preview builds from `main`
+
+After CI succeeds on a push to `main`, `main-release.yml` publishes or refreshes the `main-build` prerelease. Preview builds may be unsigned when no policy token is configured and are not stable releases.
+
+### Stable releases
+
+Stable release signing requires the GitHub repository secret:
+
+```text
+GRAFANA_ACCESS_POLICY_TOKEN
+```
+
+The tag must exactly match `package.json`, including the `v` prefix:
+
+```bash
+# Creates a commit and tag such as v1.0.1
+npm version patch
+
+# Pushes the version commit and tag
+git push origin main --follow-tags
+```
+
+Pushing `v*` triggers [`.github/workflows/release.yml`](./.github/workflows/release.yml), which verifies the tag, builds frontend and backend artifacts, signs the plugin, validates the archive, creates build provenance, and publishes the GitHub release.
+
+Before tagging:
+
+1. Move entries from **Unreleased** to a dated version in `CHANGELOG.md`.
+2. Run the full pre-push check.
+3. Verify `package.json` contains the intended version.
+4. Confirm `GRAFANA_ACCESS_POLICY_TOKEN` is configured in GitHub Actions secrets.
+5. Never print or pass the token as a command-line argument.
+
+## 🔗 References
+
+- [Grafana Plugin Tools](https://grafana.com/developers/plugin-tools/)
+- [Grafana backend plugin guide](https://grafana.com/developers/plugin-tools/key-concepts/backend-plugins/)
+- [Grafana plugin signing](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)
+- [Playwright documentation](https://playwright.dev/docs/intro)
+- [Mage documentation](https://magefile.org/)
