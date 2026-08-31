@@ -15,13 +15,18 @@ test('renders the PRTG query editor', async ({ panelEditPage, readProvisionedDat
 
 test('loads group options from a mocked PRTG resource', async ({ page, panelEditPage, readProvisionedDataSource }) => {
   const dataSource = await readProvisionedDataSource({ fileName: 'datasources.yml' });
-  await panelEditPage.mockResourceResponse('groups', {
+  const groupsResponse = {
     prtgversion: 'test',
     treesize: 2,
     groups: [
       { group: 'Production', objid: 1 },
       { group: 'Development', objid: 2 },
     ],
+  };
+  await panelEditPage.mockResourceResponse('groups', groupsResponse);
+  // Grafana 13.2 can bypass the plugin-e2e resource glob for UID-based requests.
+  await page.route('**/api/datasources/uid/*/resources/groups', async (route) => {
+    await route.fulfill({ json: groupsResponse });
   });
   await panelEditPage.datasource.set(dataSource.name);
 
