@@ -1,6 +1,7 @@
 package prtg
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -55,6 +56,10 @@ func (a *Api) SetTimeout(timeout time.Duration) {
 }
 
 func (a *Api) baseExecuteRequest(endpoint string, params map[string]string) ([]byte, error) {
+	return a.baseExecuteRequestWithContext(context.Background(), endpoint, params)
+}
+
+func (a *Api) baseExecuteRequestWithContext(ctx context.Context, endpoint string, params map[string]string) ([]byte, error) {
 	apiUrl, err := a.buildApiUrl(endpoint, params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build URL for endpoint '%s': %w", endpoint, err)
@@ -67,7 +72,7 @@ func (a *Api) baseExecuteRequest(endpoint string, params map[string]string) ([]b
 		},
 	}
 
-	req, err := http.NewRequest("GET", apiUrl, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request for endpoint '%s': %w", endpoint, err)
 	}

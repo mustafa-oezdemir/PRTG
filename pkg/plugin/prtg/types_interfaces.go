@@ -1,10 +1,13 @@
 package prtg
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type PRTGAPI interface {
 	GetGroups() (*PrtgGroupListResponse, error)
-	GetStatusList() (*PrtgStatusListResponse, error)
+	GetStatusList(ctx context.Context) (*PrtgStatusListResponse, error)
 	GetDevices(groupId string) (*PrtgDevicesListResponse, error)
 	GetSensors(deviceId string) (*PrtgSensorsListResponse, error)
 	GetChannels(sensorId string) (*PrtgChannelValueStruct, error)
@@ -17,7 +20,7 @@ type PRTGAPI interface {
 type ApiInterface interface {
 	GetCacheTime() time.Duration
 	SetTimeout(timeout time.Duration)
-	GetStatusList() (*PrtgStatusListResponse, error)
+	GetStatusList(ctx context.Context) (*PrtgStatusListResponse, error)
 	GetGroups() (*PrtgGroupListResponse, error)
 	GetDevices(group string) (*PrtgDevicesListResponse, error)
 	GetSensors(device string) (*PrtgSensorsListResponse, error)

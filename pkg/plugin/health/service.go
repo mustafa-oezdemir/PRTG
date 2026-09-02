@@ -31,12 +31,12 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 		s.clearCaches()
 	}
 
-	_, cancel := context.WithTimeout(ctx, 10*time.Second)
+	healthCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	s.logger.Debug("Starting health check")
 
-	status, err := s.api.GetStatusList()
+	status, err := s.api.GetStatusList(healthCtx)
 	if err != nil {
 		s.logger.Error("PRTG health check failed", "error", err)
 		return &backend.CheckHealthResult{

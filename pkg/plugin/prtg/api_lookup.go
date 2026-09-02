@@ -1,14 +1,15 @@
 package prtg
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
 
-func (a *Api) GetStatusList() (*PrtgStatusListResponse, error) {
-	body, err := a.baseExecuteRequest("status.json", nil)
+func (a *Api) GetStatusList(ctx context.Context) (*PrtgStatusListResponse, error) {
+	body, err := a.baseExecuteRequestWithContext(ctx, "status.json", nil)
 	if err != nil {
 		return nil, err
 	}
