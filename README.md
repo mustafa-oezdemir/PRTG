@@ -7,7 +7,7 @@ Explore PRTG groups, devices, sensors, and channels in Grafana dashboards. The G
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue)](./LICENSE)
 [![Sponsor via PayPal](https://img.shields.io/badge/Sponsor-via%20PayPal-EC4899?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=N39U7LWSRUA6E)
 
-**Plugin ID:** `maxmarkusprogram-prtg-datasource` · **Version:** `1.0.0` · **Grafana:** OSS 12.0.0 or newer
+**Plugin ID:** `maxmarkusprogram-prtg-datasource` · **Version:** `1.0.1` · **Grafana:** OSS 12.0.0 or newer
 
 [Quick start](#quick-start) · [Configuration](#configuration) · [Query modes](#query-modes) · [Development](#development) · [Support](#support-the-project)
 
@@ -47,7 +47,7 @@ Explore PRTG groups, devices, sensors, and channels in Grafana dashboards. The G
 | Grafana Schema            |   `12.4.5` |
 | Grafana UI                |   `12.4.5` |
 | Emotion CSS               |  `11.10.6` |
-| Grafana Plugin SDK for Go | `v0.292.0` |
+| Grafana Plugin SDK for Go | `v0.298.0` |
 | Playwright                |   `1.61.1` |
 | Jest                      |   `29.7.0` |
 
@@ -252,6 +252,7 @@ git push origin main --follow-tags
 
 - **Plugin does not appear:** confirm the backend binary was built for the container platform and restart Grafana.
 - **Datasource health check fails:** verify the PRTG host, network/DNS access, TLS, and API token permissions.
+- **PRTG uses a self-signed certificate:** trust its issuing CA on the Grafana server; the backend verifies TLS certificates.
 - **No groups or sensors appear:** ensure the token can read those PRTG objects and check `docker compose logs grafana`.
 - **Unsigned plugin error:** use the provided development Compose setup or sign the production artifact.
 - **Port conflict:** local Grafana is exposed on host port `3001`, not `3000`.

@@ -21,8 +21,14 @@
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
-    "links": [],
-    "screenshots": [],
+    "links": [
+      { "name": "Documentation", "url": "https://github.com/mustafa-oezdemir/PRTG#readme" },
+      { "name": "Source code", "url": "https://github.com/mustafa-oezdemir/PRTG" }
+    ],
+    "screenshots": [
+      { "name": "PRTG datasource settings", "path": "img/screenshots/datasource-settings.png" },
+      { "name": "Metrics query and panel", "path": "img/screenshots/metrics-panel.png" }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },

@@ -2,7 +2,6 @@ package prtg
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -65,12 +64,7 @@ func (a *Api) baseExecuteRequestWithContext(ctx context.Context, endpoint string
 		return nil, fmt.Errorf("failed to build URL for endpoint '%s': %w", endpoint, err)
 	}
 
-	client := &http.Client{
-		Timeout: a.timeout,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
+	client := &http.Client{Timeout: a.timeout}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
 	if err != nil {

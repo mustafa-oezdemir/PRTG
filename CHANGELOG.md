@@ -20,7 +20,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - Restructured the repository into top-level frontend, backend, provisioning, and test directories.
-- Updated the supported runtime to Grafana OSS `>= 12.0.0`, Node.js `>= 22`, Go `1.25.7`, and Grafana packages `12.x`.
+- Updated the supported runtime to Grafana OSS `>= 12.0.0`, Node.js `>= 26.13.0`, Go `1.27.3`, and Grafana packages `12.x`.
+- Updated the Grafana Go SDK and vulnerable frontend build dependencies for the plugin catalog submission.
 - Migrated selection controls to the current Grafana UI Combobox APIs.
 - Updated CI and scheduled E2E workflows to test official `grafana/grafana` OSS images.
 - Updated release signing to use `GRAFANA_ACCESS_POLICY_TOKEN`.
@@ -38,6 +39,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Kept PRTG API credentials in Grafana `secureJsonData` and out of frontend responses.
 - Added release validation, signing checks, checksums, and artifact provenance.
 - Documented a private vulnerability reporting and coordinated disclosure process.
+- Enabled TLS certificate verification for PRTG requests and replaced non-cryptographic stream jitter.
 
 ## [1.0.0] - 2025-02-17
 

@@ -2,8 +2,9 @@ package stream
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"time"
 
 	"github.com/1DeliDolu/PRTG/maxmarkusprogram-prtg-datasource/pkg/plugin/schema"
@@ -25,7 +26,11 @@ func (s *Service) runStreamLoop(
 		To:   timeRangeTo,
 	}
 
-	jitter := time.Duration(rand.Int63n(250)) * time.Millisecond
+	jitterMilliseconds, err := rand.Int(rand.Reader, big.NewInt(250))
+	if err != nil {
+		return fmt.Errorf("failed to generate stream jitter: %w", err)
+	}
+	jitter := time.Duration(jitterMilliseconds.Int64()) * time.Millisecond
 	ticker := time.NewTicker(stream.interval + jitter)
 	defer ticker.Stop()
 
