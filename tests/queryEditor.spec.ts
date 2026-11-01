@@ -39,7 +39,7 @@ test('renders the PRTG query editor', async ({
 
 test('loads group options from a mocked PRTG resource', async ({
   page,
-  panelEditPage,
+  dashboardPage,
   readProvisionedDataSource,
 }) => {
   const dataSource = await readProvisionedDataSource({
@@ -61,30 +61,13 @@ test('loads group options from a mocked PRTG resource', async ({
     ],
   };
 
-  /**
-   * IMPORTANT:
-   *
-   * usePrtgSelectionLists() calls datasource.getGroups()
-   * immediately when the QueryEditor mounts.
-   *
-   * Therefore the mock must be registered BEFORE selecting
-   * the datasource.
-   *
-   * Do not use context.route() here. @grafana/plugin-e2e
-   * already provides the correct resource mocking helper.
-   */
-  await panelEditPage.mockResourceResponse(
+  // Register the mock before addPanel mounts the provisioned query editor.
+  await dashboardPage.mockResourceResponse(
     'groups',
     groupsResponse
   );
 
-  /**
-   * Selecting the datasource mounts QueryEditor.
-   *
-   * QueryEditor -> usePrtgSelectionLists()
-   *             -> datasource.getGroups()
-   *             -> mocked /resources/groups
-   */
+  const panelEditPage = await dashboardPage.addPanel();
   await panelEditPage.datasource.set(dataSource.name);
 
   const query = panelEditPage.getQueryEditorRow('A');
