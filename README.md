@@ -1,61 +1,45 @@
-<div align="center">
+# PRTG Datasource for Grafana
 
----
+Explore PRTG groups, devices, sensors, and channels in Grafana dashboards. The Go backend handles PRTG requests, so the API token stays out of the browser.
 
-## ✨ Overview
+[![CI](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml/badge.svg)](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml)
+[![Grafana OSS](https://img.shields.io/badge/Grafana%20OSS-13.3.0%20tested-F46800?logo=grafana&logoColor=white)](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue)](./LICENSE)
+[![Sponsor via PayPal](https://img.shields.io/badge/Sponsor-via%20PayPal-EC4899?logo=paypal&logoColor=white)](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE)
 
-PRTG Datasource is a backend-enabled Grafana plugin that connects Grafana OSS to a PRTG Network Monitor instance. Build dashboards from groups, devices, sensors, and channels without exposing the PRTG API token to the browser.
+**Plugin ID:** `maxmarkusprogram-prtg-datasource` · **Version:** `1.0.0` · **Grafana:** OSS 12.0.0 or newer
 
-[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE)
+[Quick start](#quick-start) · [Configuration](#configuration) · [Query modes](#query-modes) · [Development](#development) · [Support](#support-the-project)
 
-| Plugin metadata | Value                                |
-| --------------- | ------------------------------------ |
-| 🧩 Plugin ID    | `maxmarkusprogram-prtg-datasource` |
-| 📦 Version      | `1.0.0`                            |
-| 📊 Type         | Backend datasource                   |
-| 🟠 Grafana      | OSS`>= 12.0.0`                     |
-| ⚙️ Backend    | Go + Grafana Plugin SDK`v0.292.0`  |
-| 🖥️ Frontend   | React + TypeScript + Grafana UI      |
-| 📄 License      | Apache 2.0                           |
+## Features
 
-## 🚀 Features
+- **Metrics, raw, text, and manual queries** for PRTG objects and API endpoints.
+- **Multiple channels and flexible series labels** for useful dashboard panels.
+- **Backend health checks, caching, and timezone controls** in the datasource settings.
+- **Grafana integrations** for metrics, logs, annotations, alerting, and streaming.
 
-- 📈 **Metrics queries** — select groups, devices, sensors, and multiple channels.
-- 🧾 **Raw queries** — retrieve PRTG properties with optional filters.
-- 💬 **Text queries** — display text and status values from PRTG.
-- 🛠️ **Manual API queries** — call supported endpoints such as `getsensordetails.json` and `getstatus.htm`.
-- 🏷️ **Flexible series labels** — include group, device, and sensor names.
-- ⏱️ **Cache and timezone controls** — tune request caching and timestamps per datasource.
-- ❤️ **Backend health check** — validate connectivity from Grafana's datasource settings.
-- 🔔 **Grafana integrations** — supports metrics, logs, annotations, alerting, and streaming.
-- 🧪 **Automated quality checks** — TypeScript, ESLint, Jest, Go tests, and Playwright against Grafana OSS.
+## Requirements
 
-## ✅ Requirements
+### Run
 
-### Run the plugin
-
-![Grafana](https://img.shields.io/badge/%F0%9F%9F%A0_Grafana_OSS-%E2%89%A5_12.0-F46800?style=for-the-badge&logo=grafana&logoColor=white)
-![PRTG](https://img.shields.io/badge/%F0%9F%93%A1_PRTG-API_access-0096D6?style=for-the-badge)
-
-- A reachable PRTG Network Monitor server.
-- A PRTG API token with access to the objects you want to query.
-- Grafana OSS `12.0.0` or newer.
+- Grafana OSS 12.0.0 or newer. CI tests the current supported matrix, including 13.3.0.
+- A reachable PRTG Network Monitor server and a token with access to the objects you want to query.
 
 ### Build and develop
 
-![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A5_22-5FA04E?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![npm](https://img.shields.io/badge/npm-11.3.0-CB3837?style=for-the-badge&logo=npm&logoColor=white)
-![Go](https://img.shields.io/badge/Go-1.25.7-00ADD8?style=for-the-badge&logo=go&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose_v2-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Mage](https://img.shields.io/badge/Mage-1.17.2-7B42BC?style=for-the-badge)
-
-The authoritative versions are defined in [`.nvmrc`](./.nvmrc), [`package.json`](./package.json), and [`go.mod`](./go.mod).
+| Tool    | Version                                |
+| ------- | -------------------------------------- |
+| Node.js | 26.13.0 LTS ([`.nvmrc`](./.nvmrc))     |
+| npm     | 11.3.0 (`package.json#packageManager`) |
+| Go      | 1.27.3 ([`go.mod`](./go.mod))          |
+| Mage    | 1.17.2                                 |
+| Docker  | Compose v2                             |
 
 <details>
-<summary><strong>🧱 Core dependency versions</strong></summary>
+<summary>Core dependency versions</summary>
 
-| Dependency                |      Version |
-| ------------------------- | -----------: |
+| Dependency                |    Version |
+| ------------------------- | ---------: |
 | React / React DOM         |   `18.2.0` |
 | TypeScript                |    `5.5.4` |
 | Grafana Data              |   `12.4.5` |
@@ -71,14 +55,16 @@ Versions in this table reflect the current lockfiles. Declared compatible ranges
 
 </details>
 
-## ⚡ Quick start
+## Quick start
 
 ### 1. Clone and install
 
 ```bash
 git clone https://github.com/mustafa-oezdemir/PRTG.git
 cd PRTG
+nvm use
 npm ci
+go install github.com/magefile/mage@v1.17.2
 ```
 
 ### 2. Build the frontend and backend
@@ -88,7 +74,7 @@ npm run build
 mage -v build:linux
 ```
 
-> On Windows, run `mage -v build:windows`. Use `mage -v buildAll` to build all supported platforms.
+On Windows, run `mage -v build:windows`. Use `mage -v buildAll` to build all supported platforms.
 
 ### 3. Provide local settings
 
@@ -111,7 +97,7 @@ GRAFANA_PASSWORD=admin
 docker compose up --build -d
 ```
 
-Open [http://localhost:3001](http://localhost:3001). The local environment provisions the PRTG datasource automatically and permits this unsigned development build.
+Open [http://localhost:3001](http://localhost:3001). Docker Compose starts Grafana OSS 13.3.0 by default, provisions the PRTG datasource, and permits the unsigned development build. Set `GRAFANA_VERSION` to test another Grafana version.
 
 ```bash
 # Follow logs
@@ -121,21 +107,21 @@ docker compose logs -f grafana
 docker compose down
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 In Grafana, open **Connections → Data sources → PRTG** and enter:
 
-| Setting         | Required | Example              | Description                                                |
-| --------------- | :------: | -------------------- | ---------------------------------------------------------- |
-| 🌐 PRTG server  |    ✅    | `prtg.example.com` | Host name without`https://`                              |
-| 🔑 API token    |    ✅    | `••••••••` | Stored in`secureJsonData`; never returned to the browser |
-| ⏲️ Cache time |    —    | `6000`             | Cache duration in seconds; minimum accepted value is`10` |
-| 🌍 Timezone     |    —    | `Europe/Berlin`    | Timezone used to normalize PRTG timestamps                 |
+| Setting     | Required | Example            | Description                                               |
+| ----------- | :------: | ------------------ | --------------------------------------------------------- |
+| PRTG server |   Yes    | `prtg.example.com` | Host name without `https://`                              |
+| API token   |   Yes    | `••••••••`         | Stored in `secureJsonData`; never returned to the browser |
+| Cache time  |    No    | `6000`             | Duration in seconds; minimum `10`                         |
+| Timezone    |    No    | `Europe/Berlin`    | Used to normalize PRTG timestamps                         |
 
 Select **Save & test** to run the backend health check.
 
 <details>
-<summary><strong>📄 Provision with YAML</strong></summary>
+<summary>Provision with YAML</summary>
 
 ```yaml
 apiVersion: 1
@@ -158,14 +144,14 @@ For deployments, inject the token through your secret manager instead of committ
 
 </details>
 
-## 🔎 Query modes
+## Query modes
 
-| Mode                 | Best for                                   | Inputs                                            |
-| -------------------- | ------------------------------------------ | ------------------------------------------------- |
-| 📈**Metrics**  | Time series, stat, gauge, and alert panels | Group → device → sensor → one or more channels |
-| 🧾**Raw**      | PRTG object metadata and filtered values   | Object selection, property, filter property       |
-| 💬**Text**     | Status messages and other text values      | Object selection and text property                |
-| 🛠️**Manual** | Supported PRTG API operations              | API method and object ID                          |
+| Mode        | Best for                                   | Inputs                                         |
+| ----------- | ------------------------------------------ | ---------------------------------------------- |
+| **Metrics** | Time series, stat, gauge, and alert panels | Group → device → sensor → one or more channels |
+| **Raw**     | PRTG object metadata and filtered values   | Object selection, property, filter property    |
+| **Text**    | Status messages and other text values      | Object selection and text property             |
+| **Manual**  | Supported PRTG API operations              | API method and object ID                       |
 
 ### Create your first panel
 
@@ -176,7 +162,7 @@ For deployments, inject the token through your secret manager instead of committ
 5. Choose a visualization and save the dashboard.
 
 <details>
-<summary><strong>🖼️ Configuration and dashboard screenshots</strong></summary>
+<summary>Configuration and dashboard screenshots</summary>
 
 ### Datasource setup
 
@@ -198,20 +184,18 @@ For deployments, inject the token through your secret manager instead of committ
 
 </details>
 
-## 🧑‍💻 Development
+## Development
 
-| Command               | Purpose                                        |
-| --------------------- | ---------------------------------------------- |
-| `npm run dev`       | Build the frontend in watch mode               |
-| `npm run build`     | Create a production frontend build in`dist/` |
-| `npm run typecheck` | Run TypeScript checks without emitting files   |
-| `npm run lint`      | Run ESLint                                     |
-| `npm run lint:fix`  | Fix lint and formatting issues where possible  |
-| `npm run test:ci`   | Run Jest once for CI                           |
-| `npm run e2e`       | Run Playwright end-to-end tests                |
-| `npm run server`    | Build and start the Docker Compose environment |
-| `mage -v coverage`  | Run Go backend tests with coverage             |
-| `mage -v buildAll`  | Build backend binaries for all platforms       |
+| Command             | Purpose                                           |
+| ------------------- | ------------------------------------------------- |
+| `npm run dev`       | Build the frontend in watch mode                  |
+| `npm run build`     | Build the production frontend in `dist/`          |
+| `npm run typecheck` | Check TypeScript without emitting files           |
+| `npm run lint`      | Run ESLint                                        |
+| `npm run test:ci`   | Run the Jest suite once                           |
+| `npm run e2e`       | Run Playwright against a running Grafana instance |
+| `mage -v coverage`  | Run Go tests with coverage                        |
+| `mage -v buildAll`  | Build all supported backend binaries              |
 
 ### Recommended validation sequence
 
@@ -223,7 +207,7 @@ npm run build
 mage -v coverage
 ```
 
-End-to-end tests use the official `grafana/grafana` OSS image:
+End-to-end tests use the official `grafana/grafana` OSS image. The CI matrix includes the latest stable 13.3.0 release and other supported versions.
 
 ```bash
 docker compose up -d
@@ -231,7 +215,7 @@ npm exec playwright install chromium
 npm run e2e
 ```
 
-## 📦 Build, sign, and release
+## Build, sign, and release
 
 Grafana requires signed plugins outside development mode. Set `GRAFANA_ACCESS_POLICY_TOKEN` in your local environment or as a GitHub Actions repository secret, then run:
 
@@ -250,7 +234,7 @@ npm version patch
 git push origin main --follow-tags
 ```
 
-## 🧭 Project structure
+## Project structure
 
 ```text
 .
@@ -264,7 +248,7 @@ git push origin main --follow-tags
 └── package.json       # Node.js scripts and frontend dependencies
 ```
 
-## 🧯 Troubleshooting
+## Troubleshooting
 
 - **Plugin does not appear:** confirm the backend binary was built for the container platform and restart Grafana.
 - **Datasource health check fails:** verify the PRTG host, network/DNS access, TLS, and API token permissions.
@@ -272,7 +256,7 @@ git push origin main --follow-tags
 - **Unsigned plugin error:** use the provided development Compose setup or sign the production artifact.
 - **Port conflict:** local Grafana is exposed on host port `3001`, not `3000`.
 
-## 🤝 Contributing
+## Contributing
 
 Issues and pull requests are welcome.
 
@@ -283,21 +267,17 @@ Issues and pull requests are welcome.
 
 Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md), review the [development guide](./DEVELOPMENT.md), and report security issues according to the [security policy](./SECURITY.md).
 
-## ❤️ Support the project
+## Support the project
 
-If this plugin helps you, you can [support its development with a PayPal donation](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE). Your support helps maintain and improve the plugin.
+If this plugin helps you, [sponsor its development via PayPal](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE).
 
-## 📚 Resources
+## Resources
 
 - [Grafana Plugin Tools](https://grafana.com/developers/plugin-tools/)
 - [Grafana plugin.json reference](https://grafana.com/developers/plugin-tools/reference/plugin-json)
 - [Grafana plugin signing](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)
 - [PRTG HTTP API documentation](https://www.paessler.com/manuals/prtg/http_api)
 
-## 📄 License
+## License
 
 Copyright © Mustafa Özdemir. Licensed under the [Apache License 2.0](./LICENSE).
-
----
-
-<div align="center">

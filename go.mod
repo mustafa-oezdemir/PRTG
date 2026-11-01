@@ -1,6 +1,6 @@
 module github.com/1DeliDolu/PRTG/maxmarkusprogram-prtg-datasource
 
-go 1.25.7
+go 1.27.3
 
 require (
 	github.com/grafana/grafana-plugin-sdk-go v0.292.0

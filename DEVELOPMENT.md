@@ -6,9 +6,9 @@
 
 | Tool    | Required version | Source of truth                                  |
 | ------- | ---------------: | ------------------------------------------------ |
-| Node.js |          `>= 22` | [`.nvmrc`](./.nvmrc) and `package.json #engines` |
+| Node.js |     `>= 26.13.0` | [`.nvmrc`](./.nvmrc) and `package.json #engines` |
 | npm     |         `11.3.0` | `package.json#packageManager`                    |
-| Go      |         `1.25.7` | [`go.mod`](./go.mod)                             |
+| Go      |         `1.27.3` | [`go.mod`](./go.mod)                             |
 | Mage    |         `1.17.2` | `go.mod` and CI workflows                        |
 | Docker  |   Current stable | Docker Compose v2 is required                    |
 
@@ -31,7 +31,7 @@ node --version
 npm --version
 ```
 
-If your version manager does not read `.nvmrc`, install Node.js 22 manually.
+If your version manager does not read `.nvmrc`, install Node.js 26.13.0 manually.
 
 ### 3. Install dependencies
 
