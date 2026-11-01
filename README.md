@@ -5,7 +5,7 @@ Explore PRTG groups, devices, sensors, and channels in Grafana dashboards. The G
 [![CI](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml/badge.svg)](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml)
 [![Grafana OSS](https://img.shields.io/badge/Grafana%20OSS-13.3.0%20tested-F46800?logo=grafana&logoColor=white)](https://github.com/mustafa-oezdemir/PRTG/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue)](./LICENSE)
-[![Sponsor via PayPal](https://img.shields.io/badge/Sponsor-via%20PayPal-EC4899?logo=paypal&logoColor=white)](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE)
+[![Sponsor via PayPal](https://img.shields.io/badge/Sponsor-via%20PayPal-EC4899?logo=paypal&logoColor=white)](https://paypal.me/pehlion)
 
 **Plugin ID:** `maxmarkusprogram-prtg-datasource` · **Version:** `1.0.0` · **Grafana:** OSS 12.0.0 or newer
 
@@ -269,7 +269,7 @@ Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md), review the [developme
 
 ## Support the project
 
-If this plugin helps you, [sponsor its development via PayPal](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE).
+If this plugin helps you, [sponsor its development via PayPal](https://paypal.me/pehlion).
 
 ## Resources
 
