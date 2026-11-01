@@ -6,6 +6,8 @@
 
 PRTG Datasource is a backend-enabled Grafana plugin that connects Grafana OSS to a PRTG Network Monitor instance. Build dashboards from groups, devices, sensors, and channels without exposing the PRTG API token to the browser.
 
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE)
+
 | Plugin metadata | Value                                |
 | --------------- | ------------------------------------ |
 | 🧩 Plugin ID    | `maxmarkusprogram-prtg-datasource` |
@@ -280,6 +282,10 @@ Issues and pull requests are welcome.
 4. Open a pull request with a clear description and screenshots for UI changes.
 
 Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md), review the [development guide](./DEVELOPMENT.md), and report security issues according to the [security policy](./SECURITY.md).
+
+## ❤️ Support the project
+
+If this plugin helps you, you can [support its development with a PayPal donation](https://paypal.me/pehlion?locale.x=de_DE&country.x=DE). Your support helps maintain and improve the plugin.
 
 ## 📚 Resources
 
