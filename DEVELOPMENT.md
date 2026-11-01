@@ -206,11 +206,11 @@ By participating, you agree to follow the [Code of Conduct](./CODE_OF_CONDUCT.md
 
 ### Preview builds from `main`
 
-After CI succeeds on a push to `main`, `main-release.yml` publishes or refreshes the `main-build` prerelease. Preview builds may be unsigned when no policy token is configured and are not stable releases.
+After CI succeeds on a push to `main`, `main-release.yml` publishes or refreshes the `main-build` prerelease. It signs the preview only when the policy token and either public plugin approval (`GRAFANA_PUBLIC_PLUGIN_APPROVED=true`) or private instance root URLs (`GRAFANA_ROOT_URLS`) are configured in GitHub Actions. Otherwise, it publishes an unsigned development preview. Preview builds are not stable releases.
 
 ### Stable releases
 
-Stable release signing requires the GitHub repository secret:
+Stable release signing requires Grafana approval for a public plugin and the GitHub repository secret:
 
 ```text
 GRAFANA_ACCESS_POLICY_TOKEN

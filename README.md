@@ -217,15 +217,15 @@ npm run e2e
 
 ## Build, sign, and release
 
-Grafana requires signed plugins outside development mode. Set `GRAFANA_ACCESS_POLICY_TOKEN` in your local environment or as a GitHub Actions repository secret, then run:
+Grafana requires signed plugins outside development mode. Public signing requires Grafana approval. Private signing requires the Grafana instance root URL. Set `GRAFANA_ACCESS_POLICY_TOKEN` in your local environment, then run:
 
 ```bash
 npm run build
 mage -v buildAll
-npm run sign
+npm run sign -- --rootUrls https://grafana.example.com
 ```
 
-Do not add signing tokens to `.env.example`, source control, screenshots, or workflow output. See [Grafana plugin signing](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin) for publisher and signature requirements.
+For a Grafana-approved public plugin, run `npm run sign` without `--rootUrls`. The `main-build` preview is signed only when the repository has `GRAFANA_ACCESS_POLICY_TOKEN` and either `GRAFANA_PUBLIC_PLUGIN_APPROVED=true` or `GRAFANA_ROOT_URLS` configured. Otherwise, the preview is published unsigned for development use. Do not add signing tokens to `.env.example`, source control, screenshots, or workflow output. See [Grafana plugin signing](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin) for publisher and signature requirements.
 
 Version tags trigger the repository's release workflow:
 

@@ -35,6 +35,8 @@ jobs:
       attestations: write
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
+      GRAFANA_PUBLIC_PLUGIN_APPROVED: ${{ vars.GRAFANA_PUBLIC_PLUGIN_APPROVED }}
+      GRAFANA_ROOT_URLS: ${{ vars.GRAFANA_ROOT_URLS }}
       RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
       RELEASE_TAG: main-build
       RELEASE_TITLE: Latest main build
@@ -86,9 +88,14 @@ jobs:
       - name: Execute permissions on binaries
         run: chmod 0755 dist/gpx_*
 
-      - name: Sign plugin when a policy token is configured
-        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
-        run: npm run sign
+      - name: Sign plugin when a signature level is configured
+        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' && (env.GRAFANA_PUBLIC_PLUGIN_APPROVED == 'true' || env.GRAFANA_ROOT_URLS != '') }}
+        run: |
+          if [ "${GRAFANA_PUBLIC_PLUGIN_APPROVED}" = "true" ]; then
+            npm run sign
+          else
+            npm run sign -- --rootUrls "${GRAFANA_ROOT_URLS}"
+          fi
 
       - name: Get plugin metadata
         id: metadata
